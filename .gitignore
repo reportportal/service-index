@@ -25,3 +25,9 @@ _testmain.go
 
 .idea/
 *iml
+
+## Binaries
+bin/
+
+##Vendor
+vendor/*/

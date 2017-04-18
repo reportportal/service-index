@@ -1,0 +1,9 @@
+language: go
+
+go:
+  - 1.8.1
+
+script: make build
+
+notifications:
+  slack: reportportal-dev:fl6xWHVQp1jvsMmCJxYW9YKP
