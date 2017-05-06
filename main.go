@@ -25,6 +25,7 @@ func main() {
 	rpConf.AppName = "index"
 
 	info := commons.GetBuildInfo()
+	log.Println(info)
 	info.Name = rpConf.AppName
 
 	srv := server.New(rpConf, info)
