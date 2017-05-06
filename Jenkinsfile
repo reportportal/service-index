@@ -4,7 +4,7 @@ node {
 
        load "$JENKINS_HOME/jobvars.env"
 
-       dir('src/github.com/reportportal') {
+       dir('src/github.com/reportportal/service-index-temp') {
 
            stage('Checkout'){
                 checkout scm
