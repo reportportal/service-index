@@ -22,7 +22,7 @@ import (
 func main() {
 
 	rpConf := conf.LoadConfig("", map[string]interface{}{})
-	rpConf.AppName = "gorproot"
+	rpConf.AppName = "index"
 
 	srv := server.New(rpConf)
 
