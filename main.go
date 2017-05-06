@@ -24,7 +24,10 @@ func main() {
 	rpConf := conf.LoadConfig("", map[string]interface{}{})
 	rpConf.AppName = "index"
 
-	srv := server.New(rpConf)
+	info := commons.GetBuildInfo()
+	info.Name = rpConf.AppName
+
+	srv := server.New(rpConf, info)
 
 	srv.AddRoute(func(router *goji.Mux) {
 		router.Use(func(next http.Handler) http.Handler {
