@@ -11,7 +11,6 @@ GODIRS_NOVENDOR = $(shell go list ./... | grep -v /vendor/)
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 PACKAGE_COMMONS=github.com/reportportal/service-index/vendor/github.com/reportportal/commons-go
 
-UI_BUILD_ROOT=src/main/resources/public/
 BUILD_INFO_LDFLAGS=-ldflags "-X ${PACKAGE_COMMONS}/commons.branch=${COMMIT_HASH} -X ${PACKAGE_COMMONS}/commons.buildDate=${BUILD_DATE} -X ${PACKAGE_COMMONS}/commons.version=${v}"
 IMAGE_NAME=reportportal/service-index$(IMAGE_POSTFIX)
 
@@ -58,5 +57,4 @@ pushDev:
 
 clean:
 	if [ -d ${BINARY_DIR} ] ; then rm -r ${BINARY_DIR} ; fi
-	if [ -d 'node_modules' ] ; then rm -r 'node_modules' ; fi
 	if [ -d 'build' ] ; then rm -r 'build' ; fi
