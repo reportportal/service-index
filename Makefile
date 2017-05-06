@@ -46,7 +46,7 @@ build: checkstyle test
 
 # Builds the container
 build-image:
-	docker build -t "$(IMAGE_NAME)" -f docker/Dockerfile .
+	docker build -t "$(IMAGE_NAME)" -f Dockerfile .
 
 
 # Builds the container and pushes to private registry
