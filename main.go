@@ -22,10 +22,9 @@ import (
 func main() {
 
 	rpConf := conf.LoadConfig("", map[string]interface{}{})
-	rpConf.AppName = "index"
+	rpConf.AppName = "service-index"
 
 	info := commons.GetBuildInfo()
-	log.Println(info)
 	info.Name = rpConf.AppName
 
 	srv := server.New(rpConf, info)
