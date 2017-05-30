@@ -20,7 +20,7 @@ node {
                  archiveArtifacts artifacts: 'bin/*'
             }
 
-           withEnv(["IMAGE_POSTFIX=dev"]) {
+           withEnv(["IMAGE_POSTFIX=-dev"]) {
                  docker.withServer("$DOCKER_HOST") {
                                   stage('Build Docker Image') {
                                           sh 'make build-image'
