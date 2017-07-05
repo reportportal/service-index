@@ -1,0 +1,20 @@
+package: github.com/reportportal/service-index
+import:
+- package: github.com/dghubble/sling
+  version: ^1.1.0
+- package: github.com/gorilla/handlers
+  version: ^1.2.1
+- package: github.com/hashicorp/consul
+  version: ^0.8.5
+  subpackages:
+  - api
+- package: github.com/reportportal/commons-go
+  subpackages:
+  - commons
+  - conf
+  - registry
+  - server
+- package: goji.io
+  version: ^2.0.0
+  subpackages:
+  - pat

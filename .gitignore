@@ -31,4 +31,3 @@ bin/
 
 ##Vendor
 vendor/*/
-!vendor/vendor.json
