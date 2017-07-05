@@ -33,6 +33,9 @@ func main() {
 		router.Use(func(next http.Handler) http.Handler {
 			return handlers.LoggingHandler(os.Stdout, next)
 		})
+		router.Use(commons.NoHandlerFound(func(w http.ResponseWriter, rq *http.Request) {
+			http.Redirect(w, rq, "/ui/404.html", http.StatusMovedPermanently)
+		}))
 
 		router.HandleFunc(pat.Get("/composite/info"), func(w http.ResponseWriter, r *http.Request) {
 			commons.WriteJSON(http.StatusOK, aggregateInfo(getNodesInfo(srv.Sd, true)), w)
