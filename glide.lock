@@ -1,5 +1,5 @@
 hash: 99f42c0456f42eb2c18f76749d3035e47a5eafcc1e3fe51008dc839a20fd9115
-updated: 2017-07-07T14:59:57.646698734+03:00
+updated: 2017-07-07T15:57:29.020312025+03:00
 imports:
 - name: github.com/cenkalti/backoff
   version: 4dc77674aceaabba2c7e3da25d4c823edfb73f99
@@ -37,7 +37,7 @@ imports:
   - json/scanner
   - json/token
 - name: github.com/hashicorp/serf
-  version: 91fd53b1d3e624389ed9a295a3fa380e5c7b9dfc
+  version: 6669b5d30985da6dd423ecf65f033cee400203fe
   subpackages:
   - coordinate
 - name: github.com/hudl/fargo
@@ -55,7 +55,7 @@ imports:
 - name: github.com/pelletier/go-toml
   version: 69d355db5304c0f7f809a2edc054553e7142f016
 - name: github.com/reportportal/commons-go
-  version: e82d4fe36aa4e93a35b793850a9cdaec61d785f2
+  version: 6c0e7d8bb557889e55c5a870a2377d4d114cb7c2
   subpackages:
   - commons
   - conf
@@ -81,7 +81,7 @@ imports:
   - pat
   - pattern
 - name: golang.org/x/net
-  version: 570fa1c91359c1869590e9cedf3b53162a51a167
+  version: 054b33e6527139ad5b1ec2f6232c3b175bd9a30c
   subpackages:
   - context
 - name: golang.org/x/sys
@@ -89,7 +89,7 @@ imports:
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: 2bf8f2a19ec09c670e931282edfe6567f6be21c9
+  version: cfdf022e86b4ecfb646e1efbd7db175dd623a8fa
   subpackages:
   - transform
   - unicode/norm
