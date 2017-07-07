@@ -1,5 +1,5 @@
 hash: 99f42c0456f42eb2c18f76749d3035e47a5eafcc1e3fe51008dc839a20fd9115
-updated: 2017-07-05T23:59:22.15780993+03:00
+updated: 2017-07-07T14:59:57.646698734+03:00
 imports:
 - name: github.com/cenkalti/backoff
   version: 4dc77674aceaabba2c7e3da25d4c823edfb73f99
@@ -41,7 +41,7 @@ imports:
   subpackages:
   - coordinate
 - name: github.com/hudl/fargo
-  version: b8c97836937cfa927268b01e1127d137d3da4a12
+  version: 14ced469f7dc175f6fbf9f55d799f9f12e302965
 - name: github.com/magiconair/properties
   version: 51463bfca2576e06c62a8504b5c0f06d61312647
 - name: github.com/miekg/dns
