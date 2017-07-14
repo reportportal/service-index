@@ -34,7 +34,7 @@ func main() {
 			return handlers.LoggingHandler(os.Stdout, next)
 		})
 		router.Use(commons.NoHandlerFound(func(w http.ResponseWriter, rq *http.Request) {
-			http.Redirect(w, rq, "/ui/404.html", http.StatusMovedPermanently)
+			http.Redirect(w, rq, "/ui/404.html", http.StatusFound)
 		}))
 
 		router.HandleFunc(pat.Get("/composite/info"), func(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +44,7 @@ func main() {
 			commons.WriteJSON(http.StatusOK, aggregateHealth(getNodesInfo(srv.Sd, false)), w)
 		})
 		router.HandleFunc(pat.New("/"), func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/ui/", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/ui/", http.StatusFound)
 		})
 
 		u, e := url.Parse("http://" + rpConf.Consul.Address)
