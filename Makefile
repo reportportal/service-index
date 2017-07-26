@@ -28,7 +28,7 @@ vendor:
 	glide install
 
 get-build-deps: vendor
-	$(GO) get $(BUILD_DEPS)
+	$(GO) get -u $(BUILD_DEPS)
 	gometalinter --install
 
 test: vendor
@@ -55,7 +55,7 @@ build-release: checkstyle test
 build-image:
 	docker build -t "$(IMAGE_NAME)" -f DockerfileDev .
 
-release: build-image
+release: build-release
 	releaser release --bintray.token ${BINTRAY_TOKEN}
 
 # Builds the container and pushes to private registry

@@ -2,5 +2,5 @@ bintray:
   user: avarabyeu
   org: epam
   repo: reportportal
-  pack: service-index-temp
+  pack: service-index
 artifactsFolder: release
