@@ -53,7 +53,7 @@ build-release: checkstyle test
 
 # Builds the container
 build-image:
-	docker build -t "$(IMAGE_NAME)" -f Dockerfile .
+	docker build -t "$(IMAGE_NAME)" -f DockerfileDev .
 
 release: build-image
 	releaser release --bintray.token ${BINTRAY_TOKEN}
