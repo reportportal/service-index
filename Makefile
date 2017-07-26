@@ -56,7 +56,7 @@ build-image:
 	docker build -t "$(IMAGE_NAME)" -f Dockerfile .
 
 release: build-image
-	releaser release --btToken ${BINTRAY_TOKEN}
+	releaser release --bintray.token ${BINTRAY_TOKEN}
 
 # Builds the container and pushes to private registry
 pushDev:
