@@ -6,7 +6,7 @@ BUILD_DATE = `date +%FT%T%z`
 GO = go
 BINARY_DIR=bin
 
-BUILD_DEPS:= github.com/alecthomas/gometalinter github.com/avarabyeu/releaser
+BUILD_DEPS:= github.com/alecthomas/gometalinter github.com/mitchellh/gox github.com/avarabyeu/releaser
 GODIRS_NOVENDOR = $(shell go list ./... | grep -v /vendor/)
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 PACKAGE_COMMONS=github.com/reportportal/service-index/vendor/github.com/reportportal/commons-go
@@ -48,8 +48,8 @@ build: checkstyle test
 
 
 # Builds server
-build-release: checkstyle test
-	gox -output "release/{{.Dir}}_{{.OS}}_{{.Arch}}" -ldflags ${BUILD_INFO_LDFLAGS}
+build-release: #checkstyle test
+	gox -output "release/{{.Dir}}_{{.OS}}_{{.Arch}}" -os "linux windows" -arch "amd64" ${BUILD_INFO_LDFLAGS}
 
 # Builds the container
 build-image:
