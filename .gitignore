@@ -31,3 +31,7 @@ bin/
 
 ##Vendor
 vendor/*/
+
+
+## VSCode meta info
+.vscode/
