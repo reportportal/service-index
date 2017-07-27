@@ -50,6 +50,7 @@ build: checkstyle test
 
 # Builds server
 build-release: checkstyle test
+	$(eval v := $(shell releaser bump))
 	gox -output "release/{{.Dir}}_{{.OS}}_{{.Arch}}" -os "linux windows" -arch "amd64" ${BUILD_INFO_LDFLAGS}
 	chmod -R +xr release
 

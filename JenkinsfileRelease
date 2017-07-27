@@ -15,8 +15,7 @@ node {
             }
 
             stage('Build') {
-                sh 'make get-build-deps'
-                sh 'make release v=$(releaser bump)'
+                sh 'make release'
             }
 
         }
