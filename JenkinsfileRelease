@@ -5,7 +5,7 @@ node {
     load "$JENKINS_HOME/jobvars.env"
 
     dir('src/github.com/reportportal/service-index') {
-        withEnv(["GOPATH=${JENKINS_HOME}/workspace/${JOB_NAME}"]) {
+        withEnv(["GOPATH=${JENKINS_HOME}/workspace/${JOB_NAME}", "BINTRAY_TOKEN=${BINTRAY_TOKEN}"]) {
             env.PATH="${GOPATH}/bin:$PATH"
 
             stage('Checkout') {
@@ -15,7 +15,8 @@ node {
             }
 
             stage('Build') {
-                sh 'make release'
+                sh 'make get-build-deps'
+                sh 'make release v=$(releaser bump)'
             }
 
         }
