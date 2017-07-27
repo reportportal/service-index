@@ -32,6 +32,7 @@ get-build-deps: vendor
 	gometalinter --install
 
 test: vendor
+	ls -la
 	$(GO) test $(glide novendor)
 
 
