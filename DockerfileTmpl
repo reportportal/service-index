@@ -7,7 +7,5 @@ ENV APP_DOWNLOAD_URL https://dl.bintray.com/epam/reportportal/{{.version}}/servi
 
 ADD ${APP_DOWNLOAD_URL} /service-index
 
-RUN chmod +x /service-index
-
 EXPOSE 8080
 ENTRYPOINT ["/service-index"]
