@@ -5,7 +5,7 @@ node {
     load "$JENKINS_HOME/jobvars.env"
 
     dir('src/github.com/reportportal/service-index') {
-        withEnv(["GOPATH=${JENKINS_HOME}/workspaces/${JOB_NAME}/", "PATH+GO=${GOROOT}/bin"]) {
+        withEnv(["GOPATH=${JENKINS_HOME}/workspace/${JOB_NAME}/", "PATH+GO=${GOROOT}/bin"]) {
             env.PATH="${GOPATH}/bin:$PATH"
 
             stage('Checkout') {
