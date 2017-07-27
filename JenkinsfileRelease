@@ -15,22 +15,9 @@ node {
             stage('Build') {
                  // Export environment variables pointing to the directory where Go was installed
                  docker.image('golang:1.8.3').inside("-u root -e GOPATH=${env.WORKSPACE}")  {
-                        sh 'PATH=$PATH:$GOPATH/bin && make build v=`cat VERSION`-$BUILD_NUMBER'
+                        sh 'PATH=$PATH:$GOPATH/bin && make release'
                  }
-                 archiveArtifacts artifacts: 'bin/*'
             }
-
-           withEnv(["IMAGE_POSTFIX=-dev"]) {
-                 docker.withServer("$DOCKER_HOST") {
-                                  stage('Build Docker Image') {
-                                          sh 'make build-image'
-                                  }
-
-                                  stage('Deploy container') {
-                                          sh "docker-compose -p reportportal -f $COMPOSE_FILE up -d --force-recreate index"
-                                  }
-                 }
-           }
 
 
 
