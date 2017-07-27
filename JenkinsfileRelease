@@ -5,7 +5,7 @@ node {
     load "$JENKINS_HOME/jobvars.env"
 
     dir('src/github.com/reportportal/service-index') {
-        withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/"]) {
+        withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/", "PATH+GO=${GOROOT}/bin"]) {
             stage('Checkout') {
                 checkout scm
                 sh 'git checkout master'
