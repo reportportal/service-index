@@ -4,3 +4,5 @@ bintray:
   repo: reportportal
   pack: service-index
 artifactsFolder: release
+replace:
+  DockerfileTmpl: Dockerfile

@@ -50,6 +50,7 @@ build: checkstyle test
 # Builds server
 build-release: checkstyle test
 	gox -output "release/{{.Dir}}_{{.OS}}_{{.Arch}}" -os "linux windows" -arch "amd64" ${BUILD_INFO_LDFLAGS}
+	chmod -R +xr release
 
 # Builds the container
 build-image:
