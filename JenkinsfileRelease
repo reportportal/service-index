@@ -15,6 +15,7 @@ node {
             }
 
             stage('Build') {
+                sh 'ls -la'
                 sh 'make release'
             }
 
