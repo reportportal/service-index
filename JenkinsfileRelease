@@ -14,7 +14,7 @@ node {
 
             stage('Build') {
                  // Export environment variables pointing to the directory where Go was installed
-                 docker.image('golang:1.8.3').inside("-u root -e GOPATH=${env.WORKSPACE} -e BINTRAY_TOKEN=${env.BINTRAY_TOKEN}")  {
+                 docker.image('golang:1.8.3').inside("-u root -e GOPATH=${env.WORKSPACE} -e BINTRAY_TOKEN=${BINTRAY_TOKEN}")  {
                         sh 'PATH=$PATH:$GOPATH/bin && make release'
                  }
             }
