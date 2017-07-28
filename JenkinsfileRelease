@@ -16,7 +16,7 @@ node {
 
             stage('Build') {
                 sh 'go version'
-                sh 'make build-release'
+                sh 'make release'
                 sh 'file release/service-index_linux_amd64'
             }
 
