@@ -4,4 +4,4 @@ bintray:
   repo: reportportal
   pack: service-index
 artifactsFolder: release
-replace: dockerfileTmpl=Dockerfile
+replace: DockerfileTmpl=Dockerfile
