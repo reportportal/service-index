@@ -19,9 +19,11 @@ import (
 	"strings"
 )
 
+const PROXY_CONSUL string = "proxy_consul"
+
 func main() {
 
-	rpConf := conf.LoadConfig("", map[string]interface{}{})
+	rpConf := conf.LoadConfig("", map[string]interface{}{PROXY_CONSUL : false})
 	rpConf.AppName = "index"
 
 	info := commons.GetBuildInfo()
@@ -47,13 +49,18 @@ func main() {
 			http.Redirect(w, r, "/ui/", http.StatusFound)
 		})
 
-		u, e := url.Parse("http://" + rpConf.Consul.Address)
-		if e != nil {
-			log.Fatal("Cannot parse consul URL")
+
+		if true == rpConf.Get("PROXY_CONSUL").(bool) {
+			u, e := url.Parse("http://" + rpConf.Consul.Address)
+			if e != nil {
+				log.Fatal("Cannot parse consul URL")
+			}
+
+			proxy := httputil.NewSingleHostReverseProxy(u)
+			router.Handle(pat.Get("/consul/*"), http.StripPrefix("/consul/", proxy))
+			router.Handle(pat.Get("/v1/*"), proxy)
 		}
-		proxy := httputil.NewSingleHostReverseProxy(u)
-		router.Handle(pat.Get("/consul/*"), http.StripPrefix("/consul/", proxy))
-		router.Handle(pat.Get("/v1/*"), proxy)
+
 	})
 	srv.StartServer()
 }
