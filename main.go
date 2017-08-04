@@ -19,11 +19,11 @@ import (
 	"strings"
 )
 
-const PROXY_CONSUL string = "proxy_consul"
+const proxyConsul string = "proxy_consul"
 
 func main() {
 
-	rpConf := conf.LoadConfig("", map[string]interface{}{PROXY_CONSUL : false})
+	rpConf := conf.LoadConfig("", map[string]interface{}{proxyConsul : false})
 	rpConf.AppName = "index"
 
 	info := commons.GetBuildInfo()
@@ -50,7 +50,7 @@ func main() {
 		})
 
 
-		if true == rpConf.Get("PROXY_CONSUL").(bool) {
+		if true == rpConf.Get(proxyConsul).(bool) {
 			u, e := url.Parse("http://" + rpConf.Consul.Address)
 			if e != nil {
 				log.Fatal("Cannot parse consul URL")
