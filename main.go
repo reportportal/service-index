@@ -24,7 +24,15 @@ const proxyConsul string = "proxy_consul"
 
 func main() {
 
-	rpConf := conf.LoadConfig("", map[string]interface{}{proxyConsul : "false"})
+	defaults := map[string]interface{}{
+		proxyConsul: "false",
+		"consul_tags": strings.Join([]string{
+			"urlprefix-/",
+			"traefik.frontend.rule=PathPrefix:/",
+			"traefik.backend=index",
+		}, ",")}
+
+	rpConf := conf.LoadConfig("", defaults)
 	rpConf.AppName = "index"
 
 	info := commons.GetBuildInfo()
@@ -49,7 +57,6 @@ func main() {
 		router.HandleFunc(pat.New("/"), func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/ui/", http.StatusFound)
 		})
-
 
 		enableProxy, err := strconv.ParseBool(rpConf.Get(proxyConsul).(string))
 		if err != nil {

@@ -1,5 +1,5 @@
 hash: 99f42c0456f42eb2c18f76749d3035e47a5eafcc1e3fe51008dc839a20fd9115
-updated: 2017-07-07T15:57:29.020312025+03:00
+updated: 2017-08-26T15:23:35.39431757+03:00
 imports:
 - name: github.com/cenkalti/backoff
   version: 4dc77674aceaabba2c7e3da25d4c823edfb73f99
@@ -18,7 +18,7 @@ imports:
 - name: github.com/gorilla/handlers
   version: a4043c62cc2329bacda331d33fc908ab11ef0ec3
 - name: github.com/hashicorp/consul
-  version: 2c7715154d8d4568524b76d2d4deb7ca6fd1b285
+  version: 75ca2cace08e38de8af1731ee8614d0533d5a4d4
   subpackages:
   - api
 - name: github.com/hashicorp/go-cleanhttp
