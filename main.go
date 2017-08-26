@@ -25,8 +25,10 @@ const proxyConsul string = "proxy_consul"
 func main() {
 
 	defaults := map[string]interface{}{
-		proxyConsul: "false",
-		"consul_tags": strings.Join([]string{
+		proxyConsul:      "false",
+		"consul.address": "registry:8500",
+		"server.port":    8080,
+		"consul.tags": strings.Join([]string{
 			"urlprefix-/",
 			"traefik.frontend.rule=PathPrefix:/",
 			"traefik.backend=index",
