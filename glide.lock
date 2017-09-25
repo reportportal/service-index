@@ -1,5 +1,5 @@
-hash: 42a9cd6d25d87a45f54a888c5a856571053028432e4a5efcd8f65fa66adf3ccd
-updated: 2017-09-25T20:41:09.123021607+03:00
+hash: e33c0cdda445b0bea02d487caed59e963f2f8fca86bcc390494d7e269d50dd7b
+updated: 2017-09-25T21:47:18.926240107+03:00
 imports:
 - name: github.com/avarabyeu/env
   version: 4946e6742a05770376d9415afcaf28f67fd7b0e4
@@ -19,8 +19,6 @@ imports:
   version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
   subpackages:
   - query
-- name: github.com/gorilla/handlers
-  version: a4043c62cc2329bacda331d33fc908ab11ef0ec3
 - name: github.com/hashicorp/consul
   version: 112c0603d3d6fb23ab5f15e8fdb1a761da8eaf9a
   subpackages:

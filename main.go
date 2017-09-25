@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/dghubble/sling"
 	"github.com/go-chi/chi"
-	"github.com/gorilla/handlers"
+	"github.com/go-chi/chi/middleware"
 	"github.com/hashicorp/consul/api"
 	"github.com/reportportal/commons-go/commons"
 	"github.com/reportportal/commons-go/conf"
@@ -14,7 +14,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -47,9 +46,7 @@ func main() {
 	srv := server.New(rpConf, info)
 
 	srv.AddRoute(func(router *chi.Mux) {
-		router.Use(func(next http.Handler) http.Handler {
-			return handlers.LoggingHandler(os.Stdout, next)
-		})
+		router.Use(middleware.Logger)
 		router.NotFound(func(w http.ResponseWriter, rq *http.Request) {
 			http.Redirect(w, rq, "/ui/404.html", http.StatusFound)
 		})
