@@ -3,38 +3,42 @@ package main
 import (
 	"fmt"
 	"github.com/dghubble/sling"
+	"github.com/go-chi/chi"
 	"github.com/gorilla/handlers"
 	"github.com/hashicorp/consul/api"
 	"github.com/reportportal/commons-go/commons"
 	"github.com/reportportal/commons-go/conf"
 	"github.com/reportportal/commons-go/registry"
 	"github.com/reportportal/commons-go/server"
-	"goji.io"
-	"goji.io/pat"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 const proxyConsul string = "proxy_consul"
 
 func main() {
 
-	defaults := map[string]interface{}{
-		proxyConsul:      "false",
-		"consul.address": "registry:8500",
-		"server.port":    8080,
-		"consul.tags": strings.Join([]string{
-			"urlprefix-/",
-			"traefik.frontend.rule=PathPrefix:/",
-			"traefik.backend=index",
-		}, ",")}
+	defaults := map[string]string{
+		proxyConsul: "false",
+	}
+	cfg := conf.EmptyConfig()
 
-	rpConf := conf.LoadConfig("", defaults)
+	cfg.Consul.Address = "registry:8500"
+	cfg.Consul.Tags = []string{
+		"urlprefix-/",
+		"traefik.frontend.rule=PathPrefix:/",
+		"traefik.backend=index",
+	}
+
+	rpConf, err := conf.LoadConfig(cfg, defaults)
+	if nil != err {
+		log.Fatalf("Cannot load config %s", err.Error())
+	}
 	rpConf.AppName = "index"
 
 	info := commons.GetBuildInfo()
@@ -42,25 +46,25 @@ func main() {
 
 	srv := server.New(rpConf, info)
 
-	srv.AddRoute(func(router *goji.Mux) {
+	srv.AddRoute(func(router *chi.Mux) {
 		router.Use(func(next http.Handler) http.Handler {
 			return handlers.LoggingHandler(os.Stdout, next)
 		})
-		router.Use(commons.NoHandlerFound(func(w http.ResponseWriter, rq *http.Request) {
+		router.NotFound(func(w http.ResponseWriter, rq *http.Request) {
 			http.Redirect(w, rq, "/ui/404.html", http.StatusFound)
-		}))
+		})
 
-		router.HandleFunc(pat.Get("/composite/info"), func(w http.ResponseWriter, r *http.Request) {
+		router.HandleFunc("/composite/info", func(w http.ResponseWriter, r *http.Request) {
 			commons.WriteJSON(http.StatusOK, aggregateInfo(getNodesInfo(srv.Sd, true)), w)
 		})
-		router.HandleFunc(pat.Get("/composite/health"), func(w http.ResponseWriter, r *http.Request) {
+		router.HandleFunc("/composite/health", func(w http.ResponseWriter, r *http.Request) {
 			commons.WriteJSON(http.StatusOK, aggregateHealth(getNodesInfo(srv.Sd, false)), w)
 		})
-		router.HandleFunc(pat.New("/"), func(w http.ResponseWriter, r *http.Request) {
+		router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/ui/", http.StatusFound)
 		})
 
-		enableProxy, err := strconv.ParseBool(rpConf.Get(proxyConsul).(string))
+		enableProxy, err := strconv.ParseBool(rpConf.Get(proxyConsul))
 		if err != nil {
 			enableProxy = false
 		}
@@ -72,8 +76,8 @@ func main() {
 			}
 
 			proxy := httputil.NewSingleHostReverseProxy(u)
-			router.Handle(pat.Get("/consul/*"), http.StripPrefix("/consul/", proxy))
-			router.Handle(pat.Get("/v1/*"), proxy)
+			router.Handle("/consul/*", http.StripPrefix("/consul/", proxy))
+			router.Handle("/v1/*", proxy)
 		}
 
 	})
