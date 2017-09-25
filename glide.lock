@@ -42,7 +42,7 @@ imports:
 - name: github.com/op/go-logging
   version: d2e44aa77b7195c0ef782189985dd8550e22e4de
 - name: github.com/reportportal/commons-go
-  version: df60b39ca2e760b7cb3eb011d983f5813ab6c57e
+  version: f1cee59270e830cac6849537ec7bf35122812623
   subpackages:
   - commons
   - conf
