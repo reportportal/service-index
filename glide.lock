@@ -1,5 +1,5 @@
 hash: e33c0cdda445b0bea02d487caed59e963f2f8fca86bcc390494d7e269d50dd7b
-updated: 2017-09-25T21:47:18.926240107+03:00
+updated: 2017-09-27T14:01:01.578719006+03:00
 imports:
 - name: github.com/avarabyeu/env
   version: 4946e6742a05770376d9415afcaf28f67fd7b0e4
@@ -12,7 +12,7 @@ imports:
 - name: github.com/franela/goreq
   version: 9df54ca75ad62b6295f33ca96e16a2ca10bc137a
 - name: github.com/go-chi/chi
-  version: 04ec7fc4179604b2390947258f9143eaae23b596
+  version: 624e6e12e9bc3b3073f539dab52abecdec01d769
   subpackages:
   - middleware
 - name: github.com/google/go-querystring
@@ -40,14 +40,14 @@ imports:
 - name: github.com/op/go-logging
   version: d2e44aa77b7195c0ef782189985dd8550e22e4de
 - name: github.com/reportportal/commons-go
-  version: f1cee59270e830cac6849537ec7bf35122812623
+  version: 38eafd5be250587c873e28f8d0262fd48b13c192
   subpackages:
   - commons
   - conf
   - registry
   - server
 - name: golang.org/x/net
-  version: 66aacef3dd8a676686c7ae3716979581e8b03c47
+  version: 0a9397675ba34b2845f758fe3cd68828369c6517
   subpackages:
   - context
 - name: gopkg.in/gcfg.v1
