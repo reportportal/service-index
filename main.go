@@ -6,25 +6,19 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/hashicorp/consul/api"
-	"github.com/reportportal/commons-go/commons"
-	"github.com/reportportal/commons-go/conf"
-	"github.com/reportportal/commons-go/registry"
-	"github.com/reportportal/commons-go/server"
+	"gopkg.in/reportportal/commons-go.v1/commons"
+	"gopkg.in/reportportal/commons-go.v1/conf"
+	"gopkg.in/reportportal/commons-go.v1/registry"
+	"gopkg.in/reportportal/commons-go.v1/server"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strconv"
 	"strings"
 )
 
-const proxyConsul string = "proxy_consul"
-
 func main() {
 
-	defaults := map[string]string{
-		proxyConsul: "false",
-	}
 	cfg := conf.EmptyConfig()
 
 	cfg.Consul.Address = "registry:8500"
@@ -34,40 +28,46 @@ func main() {
 		"traefik.backend=index",
 	}
 
-	rpConf, err := conf.LoadConfig(cfg, defaults)
+	rpCfg := struct {
+		ProxyConsul bool `env:"RP_PROXY_CONSUL" envDefault:"false"`
+		*conf.RpConfig
+	}{
+		ProxyConsul: false,
+		RpConfig:    cfg,
+	}
+
+	err := conf.LoadConfig(&rpCfg)
 	if nil != err {
 		log.Fatalf("Cannot load config %s", err.Error())
 	}
-	rpConf.AppName = "index"
+	rpCfg.AppName = "index"
 
 	info := commons.GetBuildInfo()
 	info.Name = "Service Index"
 
-	srv := server.New(rpConf, info)
+	srv := server.New(rpCfg.RpConfig, info)
 
-	srv.AddRoute(func(router *chi.Mux) {
+	srv.WithRouter(func(router *chi.Mux) {
 		router.Use(middleware.Logger)
 		router.NotFound(func(w http.ResponseWriter, rq *http.Request) {
 			http.Redirect(w, rq, "/ui/404.html", http.StatusFound)
 		})
 
 		router.HandleFunc("/composite/info", func(w http.ResponseWriter, r *http.Request) {
-			commons.WriteJSON(http.StatusOK, aggregateInfo(getNodesInfo(srv.Sd, true)), w)
+			server.WriteJSON(http.StatusOK, aggregateInfo(getNodesInfo(srv.Sd, true)), w)
 		})
 		router.HandleFunc("/composite/health", func(w http.ResponseWriter, r *http.Request) {
-			commons.WriteJSON(http.StatusOK, aggregateHealth(getNodesInfo(srv.Sd, false)), w)
+			server.WriteJSON(http.StatusOK, aggregateHealth(getNodesInfo(srv.Sd, false)), w)
 		})
 		router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/ui/", http.StatusFound)
 		})
+		router.HandleFunc("/ui", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/ui/", http.StatusFound)
+		})
 
-		enableProxy, err := strconv.ParseBool(rpConf.Get(proxyConsul))
-		if err != nil {
-			enableProxy = false
-		}
-
-		if true == enableProxy {
-			u, e := url.Parse("http://" + rpConf.Consul.Address)
+		if true == rpCfg.ProxyConsul {
+			u, e := url.Parse("http://" + rpCfg.Consul.Address)
 			if e != nil {
 				log.Fatal("Cannot parse consul URL")
 			}

@@ -24,8 +24,7 @@ help:
 	@echo "checkstyle - gofmt+golint+misspell"
 
 vendor:
-	$(GO) get -v github.com/Masterminds/glide
-	cd $(GOPATH)/src/github.com/Masterminds/glide && git checkout tags/v0.12.3 && go install && cd -
+	$(if $(shell which glide 2>/dev/null),$(echo "Glide is already installed..."),$(shell go get github.com/Masterminds/glide))
 	glide install
 
 get-build-deps: vendor

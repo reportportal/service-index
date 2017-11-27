@@ -1,8 +1,8 @@
-hash: e33c0cdda445b0bea02d487caed59e963f2f8fca86bcc390494d7e269d50dd7b
-updated: 2017-09-27T14:01:01.578719006+03:00
+hash: 0460723b69f31052ddc7902e2b75ba8379a1422eec0701e8424eb9f8f6d01661
+updated: 2017-11-27T11:48:15.131840756+03:00
 imports:
-- name: github.com/avarabyeu/env
-  version: 4946e6742a05770376d9415afcaf28f67fd7b0e4
+- name: github.com/caarlos0/env
+  version: 9de094f90fa8a13dc162e10ae8a3b95c0c2c33e1
 - name: github.com/cenkalti/backoff
   version: 4dc77674aceaabba2c7e3da25d4c823edfb73f99
 - name: github.com/clbanning/x2j
@@ -15,6 +15,12 @@ imports:
   version: 624e6e12e9bc3b3073f539dab52abecdec01d769
   subpackages:
   - middleware
+- name: github.com/go-playground/locales
+  version: 1e5f1161c6416a5ff48840eb8724a394e48cc534
+  subpackages:
+  - currency
+- name: github.com/go-playground/universal-translator
+  version: 71201497bace774495daed26a3874fd339e0b538
 - name: github.com/google/go-querystring
   version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
   subpackages:
@@ -39,21 +45,36 @@ imports:
   version: b8bc1bf767474819792c23f32d8286a45736f1c6
 - name: github.com/op/go-logging
   version: d2e44aa77b7195c0ef782189985dd8550e22e4de
-- name: github.com/reportportal/commons-go
-  version: 38eafd5be250587c873e28f8d0262fd48b13c192
+- name: github.com/pkg/errors
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
+- name: github.com/sirupsen/logrus
+  version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
+- name: golang.org/x/crypto
+  version: c84b36c635ad003a10f0c755dff5685ceef18c71
   subpackages:
-  - commons
-  - conf
-  - registry
-  - server
+  - ssh/terminal
 - name: golang.org/x/net
   version: 0a9397675ba34b2845f758fe3cd68828369c6517
   subpackages:
   - context
+- name: golang.org/x/sys
+  version: 314a259e304ff91bd6985da2a7149bbf91237993
+  subpackages:
+  - unix
+  - windows
 - name: gopkg.in/gcfg.v1
   version: 0ef1a8547f99b94fac9af5377dd72febba18f37c
   subpackages:
   - scanner
   - token
   - types
+- name: gopkg.in/go-playground/validator.v9
+  version: 61caf9d3038e1af346dbf5c2e16f6678e1548364
+- name: gopkg.in/reportportal/commons-go.v1
+  version: 603fb750e73b09aa8998ba1732acf0a14a297940
+  subpackages:
+  - commons
+  - conf
+  - registry
+  - server
 testImports: []
