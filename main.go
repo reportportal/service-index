@@ -15,6 +15,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -47,6 +48,12 @@ func main() {
 
 	srv := server.New(rpCfg.RpConfig, info)
 
+	aggregator := &compositeAggregator{
+		c: &http.Client{
+			Timeout: 3 * time.Second,
+		},
+	}
+
 	srv.WithRouter(func(router *chi.Mux) {
 		router.Use(middleware.Logger)
 		router.NotFound(func(w http.ResponseWriter, rq *http.Request) {
@@ -54,10 +61,10 @@ func main() {
 		})
 
 		router.HandleFunc("/composite/info", func(w http.ResponseWriter, r *http.Request) {
-			server.WriteJSON(http.StatusOK, aggregateInfo(getNodesInfo(srv.Sd, true)), w)
+			server.WriteJSON(http.StatusOK, aggregator.aggregateInfo(getNodesInfo(srv.Sd, true)), w)
 		})
 		router.HandleFunc("/composite/health", func(w http.ResponseWriter, r *http.Request) {
-			server.WriteJSON(http.StatusOK, aggregateHealth(getNodesInfo(srv.Sd, false)), w)
+			server.WriteJSON(http.StatusOK, aggregator.aggregateHealth(getNodesInfo(srv.Sd, false)), w)
 		})
 		router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/ui/", http.StatusFound)
@@ -90,13 +97,13 @@ func parseKVTag(tags []string, tagsMap map[string]string) {
 	}
 }
 
-func aggregateHealth(nodesInfo map[string]*nodeInfo) map[string]interface{} {
+func (a *compositeAggregator) aggregateHealth(nodesInfo map[string]*nodeInfo) map[string]interface{} {
 	var aggregated = make(map[string]interface{}, len(nodesInfo))
 	for node, info := range nodesInfo {
 		var rs map[string]interface{}
 
 		if "" != info.getHealthCheckURL() {
-			_, e := sling.New().Base(info.BaseURL).Get(info.getHealthCheckURL()).Receive(&rs, &rs)
+			_, e := sling.New().Client(a.c).Base(info.BaseURL).Get(info.getHealthCheckURL()).Receive(&rs, &rs)
 			if nil != e {
 				rs = make(map[string]interface{}, 1)
 				rs["status"] = "DOWN"
@@ -111,11 +118,11 @@ func aggregateHealth(nodesInfo map[string]*nodeInfo) map[string]interface{} {
 	return aggregated
 }
 
-func aggregateInfo(nodesInfo map[string]*nodeInfo) map[string]interface{} {
+func (a *compositeAggregator) aggregateInfo(nodesInfo map[string]*nodeInfo) map[string]interface{} {
 	var aggregated = make(map[string]interface{}, len(nodesInfo))
 	for node, info := range nodesInfo {
 		var rs map[string]interface{}
-		_, e := sling.New().Base(info.BaseURL).Get(info.getStatusPageURL()).ReceiveSuccess(&rs)
+		_, e := sling.New().Client(a.c).Base(info.BaseURL).Get(info.getStatusPageURL()).ReceiveSuccess(&rs)
 		if nil != e {
 			log.Println(e)
 			continue
@@ -155,6 +162,10 @@ func getNodesInfo(discovery registry.ServiceDiscovery, passing bool) map[string]
 		return nodesInfo, nil
 	})
 	return nodesInfo.(map[string]*nodeInfo)
+}
+
+type compositeAggregator struct {
+	c *http.Client
 }
 
 type nodeInfo struct {
