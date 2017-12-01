@@ -1,5 +1,5 @@
-hash: 0460723b69f31052ddc7902e2b75ba8379a1422eec0701e8424eb9f8f6d01661
-updated: 2017-11-27T11:48:15.131840756+03:00
+hash: 83a79f3953670bb23b85ad64fdca8a86af1685280ce262c0886b0b638059a116
+updated: 2017-12-01T15:57:40.117308596+03:00
 imports:
 - name: github.com/caarlos0/env
   version: 9de094f90fa8a13dc162e10ae8a3b95c0c2c33e1
@@ -26,7 +26,7 @@ imports:
   subpackages:
   - query
 - name: github.com/hashicorp/consul
-  version: 112c0603d3d6fb23ab5f15e8fdb1a761da8eaf9a
+  version: 9564c2978b59c060aed0657e662a4eb1c6f35356
   subpackages:
   - api
 - name: github.com/hashicorp/go-cleanhttp
@@ -71,7 +71,7 @@ imports:
 - name: gopkg.in/go-playground/validator.v9
   version: 61caf9d3038e1af346dbf5c2e16f6678e1548364
 - name: gopkg.in/reportportal/commons-go.v1
-  version: 603fb750e73b09aa8998ba1732acf0a14a297940
+  version: 019c3205dec2da46bd80c54be8144eae2c1a2b71
   subpackages:
   - commons
   - conf
