@@ -147,7 +147,9 @@ func getNodesInfo(discovery registry.ServiceDiscovery, passing bool) map[string]
 			if nil != e {
 				return nil, e
 			}
-			for _, inst := range instances {
+			//return node info of first instance
+			if len(instances) > 0 {
+				inst := instances[0]
 				tagsMap := map[string]string{}
 				parseKVTag(inst.Service.Tags, tagsMap)
 
@@ -156,7 +158,6 @@ func getNodesInfo(discovery registry.ServiceDiscovery, passing bool) map[string]
 				ni.Tags = tagsMap
 				nodesInfo[strings.ToUpper(k)] = &ni
 			}
-
 		}
 
 		return nodesInfo, nil
