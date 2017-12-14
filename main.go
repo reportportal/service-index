@@ -16,6 +16,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	"sync"
+	"errors"
 )
 
 func main() {
@@ -98,12 +100,10 @@ func parseKVTag(tags []string, tagsMap map[string]string) {
 }
 
 func (a *compositeAggregator) aggregateHealth(nodesInfo map[string]*nodeInfo) map[string]interface{} {
-	var aggregated = make(map[string]interface{}, len(nodesInfo))
-	for node, info := range nodesInfo {
+	return a.aggregate(nodesInfo, func(ni *nodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
-
-		if "" != info.getHealthCheckURL() {
-			_, e := sling.New().Client(a.c).Base(info.BaseURL).Get(info.getHealthCheckURL()).Receive(&rs, &rs)
+		if "" != ni.getHealthCheckURL() {
+			_, e := sling.New().Client(a.c).Base(ni.BaseURL).Get(ni.getHealthCheckURL()).Receive(&rs, &rs)
 			if nil != e {
 				rs = make(map[string]interface{}, 1)
 				rs["status"] = "DOWN"
@@ -113,25 +113,42 @@ func (a *compositeAggregator) aggregateHealth(nodesInfo map[string]*nodeInfo) ma
 			rs["status"] = "UNKNOWN"
 		}
 
-		aggregated[node] = rs
-	}
-	return aggregated
+		return rs, nil
+	})
 }
 
 func (a *compositeAggregator) aggregateInfo(nodesInfo map[string]*nodeInfo) map[string]interface{} {
-	var aggregated = make(map[string]interface{}, len(nodesInfo))
-	for node, info := range nodesInfo {
+	return a.aggregate(nodesInfo, func(info *nodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
 		_, e := sling.New().Client(a.c).Base(info.BaseURL).Get(info.getStatusPageURL()).ReceiveSuccess(&rs)
 		if nil != e {
 			log.Println(e)
-			continue
+			return nil, e
 		}
-		if nil != rs {
-			aggregated[node] = rs
+		if nil == rs {
+			return nil, errors.New("response is empty")
 		}
+		return rs, nil
+	})
+}
 
+func (a *compositeAggregator) aggregate(nodesInfo map[string]*nodeInfo, f func(ni *nodeInfo) (interface{}, error)) map[string]interface{} {
+
+	nodeLen := len(nodesInfo)
+	var aggregated = make(map[string]interface{}, nodeLen)
+	var wg sync.WaitGroup
+
+	wg.Add(nodeLen)
+	for node, info := range nodesInfo {
+		go func() {
+			defer wg.Done()
+			res, err := f(info)
+			if nil == err {
+				aggregated[node] = res
+			}
+		}()
 	}
+	wg.Wait()
 	return aggregated
 }
 
