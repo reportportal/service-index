@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/dghubble/sling"
 	"github.com/go-chi/chi"
@@ -15,9 +16,8 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
-	"time"
 	"sync"
-	"errors"
+	"time"
 )
 
 func main() {
@@ -140,13 +140,13 @@ func (a *compositeAggregator) aggregate(nodesInfo map[string]*nodeInfo, f func(n
 
 	wg.Add(nodeLen)
 	for node, info := range nodesInfo {
-		go func() {
+		go func(node string, info *nodeInfo) {
 			defer wg.Done()
 			res, err := f(info)
 			if nil == err {
 				aggregated[node] = res
 			}
-		}()
+		}(node, info)
 	}
 	wg.Wait()
 	return aggregated
