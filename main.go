@@ -46,7 +46,7 @@ func main() {
 	rpCfg.AppName = "index"
 
 	info := commons.GetBuildInfo()
-	info.Name = "Service Index"
+	info.Name = "Index Service"
 
 	srv := server.New(rpCfg.RpConfig, info)
 
