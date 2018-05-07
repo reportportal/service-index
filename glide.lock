@@ -1,18 +1,12 @@
 hash: 83a79f3953670bb23b85ad64fdca8a86af1685280ce262c0886b0b638059a116
-updated: 2017-12-01T15:57:40.117308596+03:00
+updated: 2018-05-07T16:30:54.798903+03:00
 imports:
 - name: github.com/caarlos0/env
-  version: 9de094f90fa8a13dc162e10ae8a3b95c0c2c33e1
-- name: github.com/cenkalti/backoff
-  version: 4dc77674aceaabba2c7e3da25d4c823edfb73f99
-- name: github.com/clbanning/x2j
-  version: 5ee34bb343f10ecfc125261107681de62f985cf6
+  version: 1cddc31c48c56ecd700d873edb9fd5b6f5df922a
 - name: github.com/dghubble/sling
   version: eb56e89ac5088bebb12eef3cb4b293300f43608b
-- name: github.com/franela/goreq
-  version: 9df54ca75ad62b6295f33ca96e16a2ca10bc137a
 - name: github.com/go-chi/chi
-  version: 624e6e12e9bc3b3073f539dab52abecdec01d769
+  version: e83ac2304db3c50cf03d96a2fcd39009d458bc35
   subpackages:
   - middleware
 - name: github.com/go-playground/locales
@@ -26,7 +20,7 @@ imports:
   subpackages:
   - query
 - name: github.com/hashicorp/consul
-  version: 9564c2978b59c060aed0657e662a4eb1c6f35356
+  version: fb848fc48818f58690db09d14640513aa6bf3c02
   subpackages:
   - api
 - name: github.com/hashicorp/go-cleanhttp
@@ -37,18 +31,12 @@ imports:
   version: 555c6fa2a11d1f8e08ac9964015e864a3f61e7c3
   subpackages:
   - coordinate
-- name: github.com/hudl/fargo
-  version: 14ced469f7dc175f6fbf9f55d799f9f12e302965
-- name: github.com/miekg/dns
-  version: f01e44c2fdbf755201344b5b7917f974a4badd13
 - name: github.com/mitchellh/go-homedir
   version: b8bc1bf767474819792c23f32d8286a45736f1c6
-- name: github.com/op/go-logging
-  version: d2e44aa77b7195c0ef782189985dd8550e22e4de
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/sirupsen/logrus
-  version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
+  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
 - name: golang.org/x/crypto
   version: c84b36c635ad003a10f0c755dff5685ceef18c71
   subpackages:
@@ -62,16 +50,10 @@ imports:
   subpackages:
   - unix
   - windows
-- name: gopkg.in/gcfg.v1
-  version: 0ef1a8547f99b94fac9af5377dd72febba18f37c
-  subpackages:
-  - scanner
-  - token
-  - types
 - name: gopkg.in/go-playground/validator.v9
-  version: 61caf9d3038e1af346dbf5c2e16f6678e1548364
+  version: ee0bbdea519c2c66777c6bfc943838291734ba6c
 - name: gopkg.in/reportportal/commons-go.v1
-  version: 019c3205dec2da46bd80c54be8144eae2c1a2b71
+  version: 8941600c4b44fc35763116ec9158b93dfd9359df
   subpackages:
   - commons
   - conf
