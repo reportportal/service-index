@@ -13,8 +13,9 @@ node {
             }
 
             stage('Build') {
+                 sh 'echo $USER'
                  // Export environment variables pointing to the directory where Go was installed
-                 docker.image('golang:1.9.2').inside("-u root -e GOPATH=${env.WORKSPACE}")  {
+                 docker.image('golang:1.10').inside("-u root -e GOPATH=${env.WORKSPACE}")  {
                         sh 'PATH=$PATH:$GOPATH/bin && make build v=`cat VERSION`-$BUILD_NUMBER'
                  }
                  archiveArtifacts artifacts: 'bin/*'
