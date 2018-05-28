@@ -105,12 +105,10 @@ func (a *compositeAggregator) aggregateHealth(nodesInfo map[string]*nodeInfo) ma
 		if "" != ni.getHealthCheckURL() {
 			_, e := sling.New().Client(a.c).Base(ni.BaseURL).Get(ni.getHealthCheckURL()).Receive(&rs, &rs)
 			if nil != e {
-				rs = make(map[string]interface{}, 1)
-				rs["status"] = "DOWN"
+				rs = map[string]interface{}{"status": "DOWN"}
 			}
 		} else {
-			rs = make(map[string]interface{}, 1)
-			rs["status"] = "UNKNOWN"
+			rs = map[string]interface{}{"status": "UNKNOWN"}
 		}
 
 		return rs, nil
