@@ -1,5 +1,5 @@
-hash: 83a79f3953670bb23b85ad64fdca8a86af1685280ce262c0886b0b638059a116
-updated: 2018-05-07T16:30:54.798903+03:00
+hash: 22765905affefa8327300c7a68b53aa5524ec1555532bd59cf32e15b9feb5a35
+updated: 2018-07-10T17:23:34.475312+03:00
 imports:
 - name: github.com/caarlos0/env
   version: 1cddc31c48c56ecd700d873edb9fd5b6f5df922a
@@ -20,7 +20,7 @@ imports:
   subpackages:
   - query
 - name: github.com/hashicorp/consul
-  version: fb848fc48818f58690db09d14640513aa6bf3c02
+  version: 28141971f966e99916da2c5e461dd968746491cd
   subpackages:
   - api
 - name: github.com/hashicorp/go-cleanhttp
@@ -33,6 +33,8 @@ imports:
   - coordinate
 - name: github.com/mitchellh/go-homedir
   version: b8bc1bf767474819792c23f32d8286a45736f1c6
+- name: github.com/mitchellh/mapstructure
+  version: bb74f1db0675b241733089d5a1faa5dd8b0ef57b
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/sirupsen/logrus
@@ -51,12 +53,11 @@ imports:
   - unix
   - windows
 - name: gopkg.in/go-playground/validator.v9
-  version: ee0bbdea519c2c66777c6bfc943838291734ba6c
-- name: gopkg.in/reportportal/commons-go.v1
-  version: 8941600c4b44fc35763116ec9158b93dfd9359df
+  version: ab2a8a99087e827c9af87ed6777ba897348fb178
+- name: gopkg.in/reportportal/commons-go.v2
+  version: d19696ab01bdb9c069ea53e053e327c6abe94978
   subpackages:
   - commons
   - conf
-  - registry
   - server
 testImports: []
