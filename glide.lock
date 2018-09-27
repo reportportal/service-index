@@ -1,5 +1,5 @@
-hash: 157aa9b6f8370ecba09b68269294ca89e49c73afc0cee760bb606873a8edb6dc
-updated: 2018-09-27T11:41:03.927642+03:00
+hash: f982e5ac3465d10013246160c226c1001056c81da49423506252d89170fcb422
+updated: 2018-09-27T13:23:36.099716+03:00
 imports:
 - name: github.com/caarlos0/env
   version: 7f73d6597823c7a0c39edd46e1998f90692b2add
@@ -35,7 +35,7 @@ imports:
 - name: gopkg.in/go-playground/validator.v9
   version: e69e9a28bb62b977fdc58d051f1bb477b7cbe486
 - name: gopkg.in/reportportal/commons-go.v5
-  version: d19696ab01bdb9c069ea53e053e327c6abe94978
+  version: 4d7a70b2febd231a805e035f3149527b0d0e187b
   subpackages:
   - commons
   - conf
