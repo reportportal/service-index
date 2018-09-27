@@ -8,32 +8,19 @@ node {
 
            stage('Checkout'){
                 checkout scm
-                sh 'git checkout master'
+                sh 'git checkout v5'
                 sh 'git pull'
             }
 
-            stage('Build') {
-                 sh 'echo $USER'
-                 // Export environment variables pointing to the directory where Go was installed
-                 docker.image('golang:1.10.2').inside("-u root -e GOPATH=${env.WORKSPACE}")  {
-                        sh 'PATH=$PATH:$GOPATH/bin && make build v=`cat VERSION`-$BUILD_NUMBER'
-                 }
-                 archiveArtifacts artifacts: 'bin/*'
+            docker.withServer("$DOCKER_HOST") {
+                stage('Build Docker Image') {
+                   sh 'make build-image'
+                }
+
+                stage('Deploy container') {
+                   sh "docker-compose -p reportportal5 -f $COMPOSE_FILE_RP_5 up -d --force-recreate index"
+                }
             }
-
-           withEnv(["IMAGE_POSTFIX=-dev"]) {
-                 docker.withServer("$DOCKER_HOST") {
-                                  stage('Build Docker Image') {
-                                          sh 'make build-image'
-                                  }
-
-                                  stage('Deploy container') {
-                                          sh "docker-compose -p reportportal -f $COMPOSE_FILE up -d --force-recreate index"
-                                  }
-                 }
-           }
-
-
 
         }
 }
