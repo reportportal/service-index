@@ -10,11 +10,11 @@ RELEASE_DIR=release
 BUILD_DEPS:= github.com/alecthomas/gometalinter github.com/avarabyeu/releaser
 GODIRS_NOVENDOR = $(shell go list ./... | grep -v /vendor/)
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
-PACKAGE_COMMONS=github.com/reportportal/service-index/vendor/gopkg.in/reportportal/commons-go.v1
+PACKAGE_COMMONS=github.com/reportportal/service-index/vendor/gopkg.in/reportportal/commons-go.v5
 REPO_NAME=reportportal/service-index
 
 BUILD_INFO_LDFLAGS=-ldflags "-extldflags '"-static"' -X ${PACKAGE_COMMONS}/commons.repo=${REPO_NAME} -X ${PACKAGE_COMMONS}/commons.branch=${COMMIT_HASH} -X ${PACKAGE_COMMONS}/commons.buildDate=${BUILD_DATE} -X ${PACKAGE_COMMONS}/commons.version=${v}"
-IMAGE_NAME=reportportal/service-index$(IMAGE_POSTFIX)
+IMAGE_NAME=reportportal-dev-5/service-index$(IMAGE_POSTFIX)
 
 .PHONY: vendor test build
 
@@ -58,7 +58,7 @@ build-release: checkstyle test
 
 # Builds the container
 build-image:
-	docker build -t "$(IMAGE_NAME)" -f DockerfileDev .
+	docker build -t "$(IMAGE_NAME)" -f Dockerfile-develop .
 
 release: build-release
 	releaser release --bintray.token ${BINTRAY_TOKEN}
