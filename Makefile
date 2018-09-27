@@ -36,7 +36,7 @@ test: vendor
 	$(GO) test $(glide novendor)
 
 
-checkstyle: get-build-deps
+checkstyle:
 	gometalinter --vendor ./... --fast --disable=gas --disable=errcheck --disable=gotype --deadline 10m
 
 fmt:

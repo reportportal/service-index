@@ -44,11 +44,15 @@ func main() {
 
 		router.HandleFunc("/composite/info", func(w http.ResponseWriter, r *http.Request) {
 			//server.WriteJSON(http.StatusOK, aggregator.aggregateInfo(getNodesInfo(srv.Sd, true)), w)
-			server.WriteJSON(http.StatusOK, map[string]string{}, w)
+			if err := server.WriteJSON(http.StatusOK, map[string]string{}, w); nil != err {
+				log.Println(err)
+			}
 		})
 		router.HandleFunc("/composite/health", func(w http.ResponseWriter, r *http.Request) {
 			//server.WriteJSON(http.StatusOK, aggregator.aggregateHealth(getNodesInfo(srv.Sd, false)), w)
-			server.WriteJSON(http.StatusOK, map[string]string{}, w)
+			if err := server.WriteJSON(http.StatusOK, map[string]string{}, w); nil != err {
+				log.Println(err)
+			}
 		})
 		router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/ui/", http.StatusFound)
