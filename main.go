@@ -3,10 +3,9 @@ package main
 import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"gopkg.in/reportportal/commons-go.v2/commons"
-	"gopkg.in/reportportal/commons-go.v2/conf"
-	//"gopkg.in/reportportal/commons-go.v2/registry"
-	"gopkg.in/reportportal/commons-go.v2/server"
+	"gopkg.in/reportportal/commons-go.v5/commons"
+	"gopkg.in/reportportal/commons-go.v5/conf"
+	"gopkg.in/reportportal/commons-go.v5/server"
 	"log"
 	"net/http"
 )
@@ -16,10 +15,8 @@ func main() {
 	cfg := conf.EmptyConfig()
 
 	rpCfg := struct {
-		ProxyConsul bool `env:"RP_PROXY_CONSUL" envDefault:"false"`
 		*conf.ServerConfig
 	}{
-		ProxyConsul:  false,
 		ServerConfig: cfg,
 	}
 
@@ -45,12 +42,14 @@ func main() {
 			http.Redirect(w, rq, "/ui/404.html", http.StatusFound)
 		})
 
-		//router.HandleFunc("/composite/info", func(w http.ResponseWriter, r *http.Request) {
-		//	server.WriteJSON(http.StatusOK, aggregator.aggregateInfo(getNodesInfo(srv.Sd, true)), w)
-		//})
-		//router.HandleFunc("/composite/health", func(w http.ResponseWriter, r *http.Request) {
-		//	server.WriteJSON(http.StatusOK, aggregator.aggregateHealth(getNodesInfo(srv.Sd, false)), w)
-		//})
+		router.HandleFunc("/composite/info", func(w http.ResponseWriter, r *http.Request) {
+			//server.WriteJSON(http.StatusOK, aggregator.aggregateInfo(getNodesInfo(srv.Sd, true)), w)
+			server.WriteJSON(http.StatusOK, map[string]string{}, w)
+		})
+		router.HandleFunc("/composite/health", func(w http.ResponseWriter, r *http.Request) {
+			//server.WriteJSON(http.StatusOK, aggregator.aggregateHealth(getNodesInfo(srv.Sd, false)), w)
+			server.WriteJSON(http.StatusOK, map[string]string{}, w)
+		})
 		router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/ui/", http.StatusFound)
 		})

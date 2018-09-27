@@ -1,60 +1,40 @@
-hash: 22765905affefa8327300c7a68b53aa5524ec1555532bd59cf32e15b9feb5a35
-updated: 2018-07-10T17:23:34.475312+03:00
+hash: 157aa9b6f8370ecba09b68269294ca89e49c73afc0cee760bb606873a8edb6dc
+updated: 2018-09-27T11:41:03.927642+03:00
 imports:
 - name: github.com/caarlos0/env
-  version: 1cddc31c48c56ecd700d873edb9fd5b6f5df922a
+  version: 7f73d6597823c7a0c39edd46e1998f90692b2add
 - name: github.com/dghubble/sling
   version: eb56e89ac5088bebb12eef3cb4b293300f43608b
 - name: github.com/go-chi/chi
-  version: e83ac2304db3c50cf03d96a2fcd39009d458bc35
+  version: b5294d10673813fac8558e7f47242bc9e61b4c25
   subpackages:
   - middleware
 - name: github.com/go-playground/locales
-  version: 1e5f1161c6416a5ff48840eb8724a394e48cc534
+  version: f63010822830b6fe52288ee52d5a1151088ce039
   subpackages:
   - currency
 - name: github.com/go-playground/universal-translator
   version: 71201497bace774495daed26a3874fd339e0b538
-- name: github.com/google/go-querystring
-  version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
-  subpackages:
-  - query
-- name: github.com/hashicorp/consul
-  version: 28141971f966e99916da2c5e461dd968746491cd
-  subpackages:
-  - api
-- name: github.com/hashicorp/go-cleanhttp
-  version: 3573b8b52aa7b37b9358d966a898feb387f62437
-- name: github.com/hashicorp/go-rootcerts
-  version: 6bb64b370b90e7ef1fa532be9e591a81c3493e00
-- name: github.com/hashicorp/serf
-  version: 555c6fa2a11d1f8e08ac9964015e864a3f61e7c3
-  subpackages:
-  - coordinate
-- name: github.com/mitchellh/go-homedir
-  version: b8bc1bf767474819792c23f32d8286a45736f1c6
-- name: github.com/mitchellh/mapstructure
-  version: bb74f1db0675b241733089d5a1faa5dd8b0ef57b
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/sirupsen/logrus
-  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
+  version: 3e01752db0189b9157070a0e1668a620f9a85da2
 - name: golang.org/x/crypto
-  version: c84b36c635ad003a10f0c755dff5685ceef18c71
+  version: 0e37d006457bf46f9e6692014ba72ef82c33022c
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
-  version: 0a9397675ba34b2845f758fe3cd68828369c6517
+  version: f04abc6bdfa7a0171a8a0c9fd2ada9391044d056
   subpackages:
   - context
 - name: golang.org/x/sys
-  version: 314a259e304ff91bd6985da2a7149bbf91237993
+  version: 90868a75fefd03942536221d7c0e2f84ec62a668
   subpackages:
   - unix
   - windows
 - name: gopkg.in/go-playground/validator.v9
-  version: ab2a8a99087e827c9af87ed6777ba897348fb178
-- name: gopkg.in/reportportal/commons-go.v2
+  version: e69e9a28bb62b977fdc58d051f1bb477b7cbe486
+- name: gopkg.in/reportportal/commons-go.v5
   version: d19696ab01bdb9c069ea53e053e327c6abe94978
   subpackages:
   - commons
