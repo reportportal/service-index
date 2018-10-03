@@ -1,34 +1,54 @@
-hash: f982e5ac3465d10013246160c226c1001056c81da49423506252d89170fcb422
-updated: 2018-09-27T13:23:36.099716+03:00
+hash: 37c3fde4c0736032f698b48e0e9746ad1d9ce65530aa55079927626307188f1e
+updated: 2018-10-02T15:41:53.560244+03:00
 imports:
 - name: github.com/caarlos0/env
   version: 7f73d6597823c7a0c39edd46e1998f90692b2add
 - name: github.com/dghubble/sling
   version: eb56e89ac5088bebb12eef3cb4b293300f43608b
 - name: github.com/go-chi/chi
-  version: b5294d10673813fac8558e7f47242bc9e61b4c25
+  version: e83ac2304db3c50cf03d96a2fcd39009d458bc35
   subpackages:
   - middleware
 - name: github.com/go-playground/locales
-  version: f63010822830b6fe52288ee52d5a1151088ce039
+  version: 1e5f1161c6416a5ff48840eb8724a394e48cc534
   subpackages:
   - currency
 - name: github.com/go-playground/universal-translator
   version: 71201497bace774495daed26a3874fd339e0b538
+- name: github.com/google/go-querystring
+  version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
+  subpackages:
+  - query
+- name: github.com/hashicorp/consul
+  version: 48d287ef690ada66634885640f3444dbf7b71d18
+  subpackages:
+  - api
+- name: github.com/hashicorp/go-cleanhttp
+  version: 3573b8b52aa7b37b9358d966a898feb387f62437
+- name: github.com/hashicorp/go-rootcerts
+  version: 6bb64b370b90e7ef1fa532be9e591a81c3493e00
+- name: github.com/hashicorp/serf
+  version: 555c6fa2a11d1f8e08ac9964015e864a3f61e7c3
+  subpackages:
+  - coordinate
+- name: github.com/mitchellh/go-homedir
+  version: b8bc1bf767474819792c23f32d8286a45736f1c6
+- name: github.com/mitchellh/mapstructure
+  version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/sirupsen/logrus
-  version: 3e01752db0189b9157070a0e1668a620f9a85da2
+  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
 - name: golang.org/x/crypto
-  version: 0e37d006457bf46f9e6692014ba72ef82c33022c
+  version: c84b36c635ad003a10f0c755dff5685ceef18c71
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
-  version: f04abc6bdfa7a0171a8a0c9fd2ada9391044d056
+  version: 0a9397675ba34b2845f758fe3cd68828369c6517
   subpackages:
   - context
 - name: golang.org/x/sys
-  version: 90868a75fefd03942536221d7c0e2f84ec62a668
+  version: 314a259e304ff91bd6985da2a7149bbf91237993
   subpackages:
   - unix
   - windows
@@ -40,4 +60,6 @@ imports:
   - commons
   - conf
   - server
+- name: gopkg.in/resty.v1
+  version: d4920dcf5b7689548a6db640278a9b35a5b48ec6
 testImports: []

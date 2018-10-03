@@ -3,12 +3,16 @@ package main
 import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/reportportal/service-index/traefik"
 	"gopkg.in/reportportal/commons-go.v5/commons"
 	"gopkg.in/reportportal/commons-go.v5/conf"
 	"gopkg.in/reportportal/commons-go.v5/server"
 	"log"
 	"net/http"
+	"time"
 )
+
+const httpClientTimeout = 5 * time.Second
 
 func main() {
 
@@ -16,6 +20,7 @@ func main() {
 
 	rpCfg := struct {
 		*conf.ServerConfig
+		LbURL string `env:"LB_URL" envDefault:"http://dev.epm-rpp.projects.epam.com:9091/api/providers/docker"`
 	}{
 		ServerConfig: cfg,
 	}
@@ -30,11 +35,7 @@ func main() {
 
 	srv := server.New(rpCfg.ServerConfig, info)
 
-	//aggregator := &compositeAggregator{
-	//	c: &http.Client{
-	//		Timeout: 3 * time.Second,
-	//	},
-	//}
+	aggregator := traefik.NewAggregator(rpCfg.LbURL, httpClientTimeout)
 
 	srv.WithRouter(func(router *chi.Mux) {
 		router.Use(middleware.Logger)
@@ -43,14 +44,12 @@ func main() {
 		})
 
 		router.HandleFunc("/composite/info", func(w http.ResponseWriter, r *http.Request) {
-			//server.WriteJSON(http.StatusOK, aggregator.aggregateInfo(getNodesInfo(srv.Sd, true)), w)
-			if err := server.WriteJSON(http.StatusOK, map[string]string{}, w); nil != err {
+			if err := server.WriteJSON(http.StatusOK, aggregator.AggregateInfo(), w); nil != err {
 				log.Println(err)
 			}
 		})
 		router.HandleFunc("/composite/health", func(w http.ResponseWriter, r *http.Request) {
-			//server.WriteJSON(http.StatusOK, aggregator.aggregateHealth(getNodesInfo(srv.Sd, false)), w)
-			if err := server.WriteJSON(http.StatusOK, map[string]string{}, w); nil != err {
+			if err := server.WriteJSON(http.StatusOK, aggregator.AggregateHealth(), w); nil != err {
 				log.Println(err)
 			}
 		})
@@ -64,123 +63,3 @@ func main() {
 	})
 	srv.StartServer()
 }
-
-//func parseKVTag(tags []string, tagsMap map[string]string) {
-//	for _, tag := range tags {
-//		kv := strings.Split(tag, "=")
-//		if 2 == len(kv) {
-//			tagsMap[kv[0]] = kv[1]
-//		}
-//	}
-//}
-//
-//func (a *compositeAggregator) aggregateHealth(nodesInfo map[string]*nodeInfo) map[string]interface{} {
-//	return a.aggregate(nodesInfo, func(ni *nodeInfo) (interface{}, error) {
-//		var rs map[string]interface{}
-//		if "" != ni.getHealthCheckURL() {
-//			_, e := sling.New().Client(a.c).Base(ni.BaseURL).Get(ni.getHealthCheckURL()).Receive(&rs, &rs)
-//			if nil != e {
-//				rs = map[string]interface{}{"status": "DOWN"}
-//			}
-//		} else {
-//			rs = map[string]interface{}{"status": "UNKNOWN"}
-//		}
-//
-//		return rs, nil
-//	})
-//}
-//
-//func (a *compositeAggregator) aggregateInfo(nodesInfo map[string]*nodeInfo) map[string]interface{} {
-//	return a.aggregate(nodesInfo, func(info *nodeInfo) (interface{}, error) {
-//		var rs map[string]interface{}
-//		_, e := sling.New().Client(a.c).Base(info.BaseURL).Get(info.getStatusPageURL()).ReceiveSuccess(&rs)
-//		if nil != e {
-//			log.Println(e)
-//			return nil, e
-//		}
-//		if nil == rs {
-//			return nil, errors.New("response is empty")
-//		}
-//		return rs, nil
-//	})
-//}
-//
-//func (a *compositeAggregator) aggregate(nodesInfo map[string]*nodeInfo, f func(ni *nodeInfo) (interface{}, error)) map[string]interface{} {
-//
-//	nodeLen := len(nodesInfo)
-//	var aggregated = make(map[string]interface{}, nodeLen)
-//	var wg sync.WaitGroup
-//
-//	wg.Add(nodeLen)
-//	var mu sync.Mutex
-//	for node, info := range nodesInfo {
-//		go func(node string, info *nodeInfo) {
-//			defer wg.Done()
-//			res, err := f(info)
-//			if nil == err {
-//				mu.Lock()
-//				aggregated[node] = res
-//				mu.Unlock()
-//			}
-//		}(node, info)
-//	}
-//	wg.Wait()
-//	return aggregated
-//}
-//
-//func getNodesInfo(discovery registry.ServiceDiscovery, passing bool) map[string]*nodeInfo {
-//	nodesInfo, _ := discovery.DoWithClient(func(client interface{}) (interface{}, error) {
-//		services, _, e := client.(*api.Client).Catalog().Services(&api.QueryOptions{})
-//		if nil != e {
-//			return nil, e
-//		}
-//		nodesInfo := make(map[string]*nodeInfo, len(services))
-//		for k := range services {
-//			instances, _, e := client.(*api.Client).Health().Service(k, "", passing, &api.QueryOptions{})
-//			if nil != e {
-//				return nil, e
-//			}
-//			//return node info of first instance
-//			if len(instances) > 0 {
-//				inst := findFirstValidInstance(instances)
-//				if nil != inst {
-//					tagsMap := map[string]string{}
-//					parseKVTag(inst.Service.Tags, tagsMap)
-//
-//					var ni nodeInfo
-//					ni.BaseURL = fmt.Sprintf("http://%s:%d/", inst.Service.Address, inst.Service.Port)
-//					ni.Tags = tagsMap
-//					nodesInfo[strings.ToUpper(k)] = &ni
-//				}
-//			}
-//		}
-//
-//		return nodesInfo, nil
-//	})
-//	return nodesInfo.(map[string]*nodeInfo)
-//}
-//
-//func findFirstValidInstance(instances []*api.ServiceEntry) *api.ServiceEntry {
-//	for _, inst := range instances {
-//		if "" != inst.Service.Address {
-//			return inst
-//		}
-//	}
-//	return nil
-//}
-//
-//type compositeAggregator struct {
-//	c *http.Client
-//}
-//
-//type nodeInfo struct {
-//	BaseURL string
-//	Tags    map[string]string
-//}
-//
-//func (ni *nodeInfo) getStatusPageURL() string {
-//	return ni.Tags["statusPageUrlPath"]
-//}
-//func (ni *nodeInfo) getHealthCheckURL() string {
-//	return ni.Tags["healthCheckUrlPath"]
-//}
