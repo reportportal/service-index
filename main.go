@@ -8,7 +8,6 @@ import (
 	"gopkg.in/reportportal/commons-go.v5/commons"
 	"gopkg.in/reportportal/commons-go.v5/conf"
 	"gopkg.in/reportportal/commons-go.v5/server"
-	"log"
 	"net/http"
 	"time"
 )
