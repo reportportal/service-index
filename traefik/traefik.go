@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const dockerProviderBaseURL = "/api/providers/docker"
+
 //Providers represents traefik response model
 type Providers struct {
 	Docker *Provider `json:"docker,omitempty"`
@@ -44,7 +46,7 @@ func NewAggregator(traefikURL string, timeout time.Duration) *Aggregator {
 		r: resty.NewWithClient(&http.Client{
 			Timeout: timeout,
 		}),
-		lbURL: traefikURL,
+		lbURL: traefikURL + dockerProviderBaseURL,
 	}
 }
 

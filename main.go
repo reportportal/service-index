@@ -21,7 +21,7 @@ func main() {
 
 	rpCfg := struct {
 		*conf.ServerConfig
-		LbURL string `env:"LB_URL" envDefault:"http://dev.epm-rpp.projects.epam.com:9091/api/providers/docker"`
+		LbURL string `env:"LB_URL" envDefault:"http://localhost:9091"`
 	}{
 		ServerConfig: cfg,
 	}
