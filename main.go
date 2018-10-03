@@ -4,6 +4,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/reportportal/service-index/traefik"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/reportportal/commons-go.v5/commons"
 	"gopkg.in/reportportal/commons-go.v5/conf"
 	"gopkg.in/reportportal/commons-go.v5/server"
@@ -45,12 +46,12 @@ func main() {
 
 		router.HandleFunc("/composite/info", func(w http.ResponseWriter, r *http.Request) {
 			if err := server.WriteJSON(http.StatusOK, aggregator.AggregateInfo(), w); nil != err {
-				log.Println(err)
+				log.Error(err)
 			}
 		})
 		router.HandleFunc("/composite/health", func(w http.ResponseWriter, r *http.Request) {
 			if err := server.WriteJSON(http.StatusOK, aggregator.AggregateHealth(), w); nil != err {
-				log.Println(err)
+				log.Error(err)
 			}
 		})
 		router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

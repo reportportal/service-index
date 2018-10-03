@@ -3,34 +3,42 @@ package traefik
 import (
 	"errors"
 	"github.com/reportportal/service-index/aggregator"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/resty.v1"
-	"log"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 )
 
+//Providers represents traefik response model
 type Providers struct {
 	Docker *Provider `json:"docker,omitempty"`
 }
 
+//Provider represents traefik response model
 type Provider struct {
 	Backends map[string]*Backend `json:"backends,omitempty"`
 }
+
+//Backend represents traefik response model
 type Backend struct {
 	Servers map[string]*Server `json:"servers,omitempty"`
 }
+
+//Server represents traefik response model
 type Server struct {
 	URL    string `json:"url"`
 	Weight int    `json:"weight"`
 }
 
+//Aggregator represents traefik response model
 type Aggregator struct {
 	r     *resty.Client
 	lbURL string
 }
 
+//NewAggregator creates new traefik aggregator
 func NewAggregator(traefikURL string, timeout time.Duration) *Aggregator {
 	return &Aggregator{
 		r: resty.NewWithClient(&http.Client{
@@ -40,11 +48,12 @@ func NewAggregator(traefikURL string, timeout time.Duration) *Aggregator {
 	}
 }
 
+//AggregateHealth aggregates health info
 func (a *Aggregator) AggregateHealth() map[string]interface{} {
 	return a.aggregate(func(ni *aggregator.NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
-		if "" != ni.GetHealthCheckURL() {
-			_, e := a.r.R().SetResult(&rs).SetError(&rs).Get(ni.GetHealthCheckURL())
+		if "" != ni.GetHealthEndpoint() {
+			_, e := a.r.R().SetResult(&rs).SetError(&rs).Get(ni.GetHealthEndpoint())
 			if nil != e {
 				rs = map[string]interface{}{"status": "DOWN"}
 			}
@@ -56,15 +65,17 @@ func (a *Aggregator) AggregateHealth() map[string]interface{} {
 	})
 }
 
+//AggregateInfo aggregates info
 func (a *Aggregator) AggregateInfo() map[string]interface{} {
 	return a.aggregate(func(info *aggregator.NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
-		_, e := a.r.R().SetResult(&rs).Get(info.GetStatusPageURL())
+		_, e := a.r.R().SetResult(&rs).Get(info.GetInfoEndpoint())
 		if nil != e {
-			log.Println(e)
+			log.Errorf("Unable to aggregate info: %v", e)
 			return nil, e
 		}
 		if nil == rs {
+			log.Error("Unable to collect info endpoint response")
 			return nil, errors.New("response is empty")
 		}
 		return rs, nil
