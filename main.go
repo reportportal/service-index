@@ -40,7 +40,7 @@ func main() {
 	srv.WithRouter(func(router *chi.Mux) {
 		router.Use(middleware.Logger)
 		router.NotFound(func(w http.ResponseWriter, rq *http.Request) {
-			http.Redirect(w, rq, "/ui/404.html", http.StatusFound)
+			http.Redirect(w, rq, "/ui/#notfound", http.StatusFound)
 		})
 
 		router.HandleFunc("/composite/info", func(w http.ResponseWriter, r *http.Request) {
