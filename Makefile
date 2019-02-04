@@ -24,7 +24,7 @@ help:
 	@echo "checkstyle - gofmt+golint+misspell"
 
 vendor:
-	$(if $(shell which glide 2>/dev/null),$(echo "Glide is already installed..."),$(shell go get github.com/Masterminds/glide))
+	#$(if $(shell which glide 2>/dev/null),$(echo "Glide is already installed..."),$(shell go get github.com/Masterminds/glide))
 	glide install
 
 get-build-deps:
