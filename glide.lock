@@ -1,12 +1,10 @@
-hash: 83a79f3953670bb23b85ad64fdca8a86af1685280ce262c0886b0b638059a116
-updated: 2018-05-07T16:30:54.798903+03:00
+hash: b58d97441741826d59c139239372692f0645b619a80bbb84297665a1391df8f9
+updated: 2018-10-03T14:59:45.558376+03:00
 imports:
 - name: github.com/caarlos0/env
-  version: 1cddc31c48c56ecd700d873edb9fd5b6f5df922a
-- name: github.com/dghubble/sling
-  version: eb56e89ac5088bebb12eef3cb4b293300f43608b
+  version: 7f73d6597823c7a0c39edd46e1998f90692b2add
 - name: github.com/go-chi/chi
-  version: e83ac2304db3c50cf03d96a2fcd39009d458bc35
+  version: b5294d10673813fac8558e7f47242bc9e61b4c25
   subpackages:
   - middleware
 - name: github.com/go-playground/locales
@@ -15,28 +13,12 @@ imports:
   - currency
 - name: github.com/go-playground/universal-translator
   version: 71201497bace774495daed26a3874fd339e0b538
-- name: github.com/google/go-querystring
-  version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
-  subpackages:
-  - query
-- name: github.com/hashicorp/consul
-  version: fb848fc48818f58690db09d14640513aa6bf3c02
-  subpackages:
-  - api
-- name: github.com/hashicorp/go-cleanhttp
-  version: 3573b8b52aa7b37b9358d966a898feb387f62437
-- name: github.com/hashicorp/go-rootcerts
-  version: 6bb64b370b90e7ef1fa532be9e591a81c3493e00
-- name: github.com/hashicorp/serf
-  version: 555c6fa2a11d1f8e08ac9964015e864a3f61e7c3
-  subpackages:
-  - coordinate
-- name: github.com/mitchellh/go-homedir
-  version: b8bc1bf767474819792c23f32d8286a45736f1c6
+- name: github.com/konsorten/go-windows-terminal-sequences
+  version: b729f2633dfe35f4d1d8a32385f6685610ce1cb5
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/sirupsen/logrus
-  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
+  version: a67f783a3814b8729bd2dac5780b5f78f8dbd64d
 - name: golang.org/x/crypto
   version: c84b36c635ad003a10f0c755dff5685ceef18c71
   subpackages:
@@ -45,18 +27,20 @@ imports:
   version: 0a9397675ba34b2845f758fe3cd68828369c6517
   subpackages:
   - context
+  - publicsuffix
 - name: golang.org/x/sys
   version: 314a259e304ff91bd6985da2a7149bbf91237993
   subpackages:
   - unix
   - windows
 - name: gopkg.in/go-playground/validator.v9
-  version: ee0bbdea519c2c66777c6bfc943838291734ba6c
-- name: gopkg.in/reportportal/commons-go.v1
-  version: 8941600c4b44fc35763116ec9158b93dfd9359df
+  version: e69e9a28bb62b977fdc58d051f1bb477b7cbe486
+- name: gopkg.in/reportportal/commons-go.v5
+  version: 4d7a70b2febd231a805e035f3149527b0d0e187b
   subpackages:
   - commons
   - conf
-  - registry
   - server
+- name: gopkg.in/resty.v1
+  version: d4920dcf5b7689548a6db640278a9b35a5b48ec6
 testImports: []

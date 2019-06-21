@@ -3,7 +3,7 @@ language: go
 go:
   - 1.8.3
 
-script: make build
+script: make vendor build
 
 notifications:
   slack: reportportal-dev:fl6xWHVQp1jvsMmCJxYW9YKP

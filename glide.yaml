@@ -1,15 +1,12 @@
 package: github.com/reportportal/service-index
 import:
-- package: github.com/dghubble/sling
-  version: ^1.1.0
-- package: github.com/hashicorp/consul
-  version: ^1.0.0
-  subpackages:
-  - api
-- package: gopkg.in/reportportal/commons-go.v1
-  version: ^1.0.6
+- package: gopkg.in/reportportal/commons-go.v5
+  version: ^5.0.0
   subpackages:
   - commons
   - conf
-  - registry
   - server
+- package: gopkg.in/resty.v1
+  version: ^1.9.1
+- package: github.com/sirupsen/logrus
+  version: ^1.1.0
