@@ -1,22 +1,17 @@
-FROM golang:1.11.1-alpine
+FROM golang:1.12.6-alpine
 
 RUN apk --no-cache add build-base git
 
 WORKDIR /go/src/github.com/reportportal/service-index/
 ARG version
 
+ENV GO111MODULE=on
+
 ## Copy makefile and glide before to be able to cache vendor
 COPY Makefile ./
-RUN make get-build-deps
-
-COPY glide.yaml ./
-COPY glide.lock ./
-
-RUN make vendor
 
 ENV VERSION=$version
 
-RUN make get-build-deps
 COPY ./ ./
 RUN make build v=${VERSION}
 
