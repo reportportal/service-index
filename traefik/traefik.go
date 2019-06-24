@@ -122,11 +122,9 @@ func (a *Aggregator) getNodesInfo() (map[string]*aggregator.NodeInfo, error) {
 
 	nodesInfo := make(map[string]*aggregator.NodeInfo, len(provider.Backends))
 
-	if nil == err {
-		for bName, b := range provider.Backends {
-			backName := bName[strings.LastIndex(bName, "backend-")+len("backend-"):]
-			nodesInfo[backName] = &aggregator.NodeInfo{URL: getFirstNode(b.Servers).URL}
-		}
+	for bName, b := range provider.Backends {
+		backName := bName[strings.LastIndex(bName, "backend-")+len("backend-"):]
+		nodesInfo[backName] = &aggregator.NodeInfo{URL: getFirstNode(b.Servers).URL}
 	}
 
 	return nodesInfo, nil

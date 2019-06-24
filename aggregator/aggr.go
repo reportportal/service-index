@@ -31,6 +31,7 @@ func (ni *NodeInfo) GetHealthEndpoint() string {
 	return ni.URL + "/health"
 }
 
+//nolint:unused
 func (ni *NodeInfo) buildURL(h, path string) string {
 	u, err := url.Parse(h)
 	if nil != err {
