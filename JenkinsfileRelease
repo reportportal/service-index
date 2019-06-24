@@ -15,6 +15,7 @@ node {
             }
 
             stage('Build') {
+                sh 'export GO111MODULE=on'
                 sh 'go version'
                 sh 'make release'
                 sh 'file release/service-index_linux_amd64'
