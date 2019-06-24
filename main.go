@@ -1,13 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/reportportal/commons-go/commons"
+	"github.com/reportportal/commons-go/conf"
+	"github.com/reportportal/commons-go/server"
 	"github.com/reportportal/service-index/traefik"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/reportportal/commons-go.v5/commons"
-	"gopkg.in/reportportal/commons-go.v5/conf"
-	"gopkg.in/reportportal/commons-go.v5/server"
 	"net/http"
 	"time"
 )
@@ -61,5 +62,6 @@ func main() {
 		})
 
 	})
+	fmt.Println(info)
 	srv.StartServer()
 }
