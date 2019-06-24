@@ -7,7 +7,7 @@ GO = go
 BINARY_DIR=bin
 RELEASE_DIR=release
 
-BUILD_DEPS:= github.com/alecthomas/gometalinter github.com/avarabyeu/releaser
+BUILD_DEPS:= github.com/avarabyeu/releaser
 GODIRS_NOVENDOR = $(shell go list ./... | grep -v /vendor/)
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 PACKAGE_COMMONS=github.com/reportportal/commons-go
@@ -23,13 +23,8 @@ help:
 	@echo "test       - go test"
 	@echo "checkstyle - gofmt+golint+misspell"
 
-vendor:
-	#$(if $(shell which glide 2>/dev/null),$(echo "Glide is already installed..."),$(shell go get github.com/Masterminds/glide))
-	#glide install
-
 get-build-deps:
-	$(GO) get -u $(BUILD_DEPS)
-	gometalinter --install
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.17.1
 
 test: vendor
 	ls -la
@@ -37,7 +32,7 @@ test: vendor
 
 
 checkstyle:
-	gometalinter --vendor ./... --fast --disable=gas --disable=errcheck --disable=gotype --deadline 10m
+	golangci-lint run
 
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
