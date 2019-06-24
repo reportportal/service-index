@@ -10,6 +10,7 @@ RELEASE_DIR=release
 BUILD_DEPS:= github.com/avarabyeu/releaser
 GODIRS_NOVENDOR = $(shell go list ./... | grep -v /vendor/)
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+PWD = $(shell pwd)
 PACKAGE_COMMONS=github.com/reportportal/commons-go
 REPO_NAME=reportportal/service-index
 
@@ -32,7 +33,7 @@ test: vendor
 
 
 checkstyle:
-	golangci-lint run
+	docker run --rm -it -v ${PWD}:/app -w="/app" golangci/golangci-lint:v1.17 golangci-lint run
 
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
