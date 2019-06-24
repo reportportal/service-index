@@ -25,7 +25,8 @@ help:
 	@echo "checkstyle - gofmt+golint+misspell"
 
 get-build-deps:
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.17.1
+	$(GO) get -u $(BUILD_DEPS)
+#	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.17.1
 
 test: vendor
 	ls -la
@@ -57,7 +58,7 @@ build-release: checkstyle test
 build-image:
 	docker build -t "$(IMAGE_NAME)" -f Dockerfile-develop .
 
-release: build-release
+release: get-build-deps build-release
 	releaser release --bintray.token ${BINTRAY_TOKEN}
 
 # Builds the container and pushes to private registry
