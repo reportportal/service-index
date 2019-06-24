@@ -7,6 +7,7 @@ node {
     dir('src/github.com/reportportal/service-index') {
         withEnv(["GOPATH=${JENKINS_HOME}/workspace/${JOB_NAME}", "BINTRAY_TOKEN=${BINTRAY_TOKEN}"]) {
             env.PATH="${GOPATH}/bin:$PATH"
+            env.GO111MODULE="on"
 
             stage('Checkout') {
                 checkout scm
@@ -15,7 +16,6 @@ node {
             }
 
             stage('Build') {
-                sh 'export GO111MODULE=on'
                 sh 'go version'
                 sh 'make release'
                 sh 'file release/service-index_linux_amd64'
