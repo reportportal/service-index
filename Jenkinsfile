@@ -14,7 +14,11 @@ node {
 
             docker.withServer("$DOCKER_HOST") {
                 stage('Build Docker Image') {
-                   sh 'make build-image'
+                   sh """
+                   MAJOR_VER = $(cat VERSION)
+                   BUILD_VER = $($MAJOR_VER-${env.BUILD_NUMBER})
+                   sh 'make build-image v=$BUILD_VER'
+                   """
                 }
 
                 stage('Deploy container') {
