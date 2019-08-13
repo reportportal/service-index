@@ -2,10 +2,10 @@ package traefik
 
 import (
 	"errors"
-	"github.com/reportportal/service-index/aggregator"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/resty.v1"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -40,6 +40,33 @@ type Aggregator struct {
 	lbURL string
 }
 
+//NodeInfo embeds node-related information
+type NodeInfo struct {
+	URL string
+}
+
+//GetInfoEndpoint returns info endpoint URL
+func (ni *NodeInfo) GetInfoEndpoint() string {
+	return ni.URL + "/info"
+}
+
+//GetHealthEndpoint returns health check URL
+func (ni *NodeInfo) GetHealthEndpoint() string {
+	return ni.URL + "/health"
+}
+
+//nolint:unused
+func (ni *NodeInfo) buildURL(h, path string) string {
+	u, err := url.Parse(h)
+	if nil != err {
+		log.Error(err)
+		return ""
+	}
+	//u.Host = h
+	u.Path = path
+	return u.String()
+}
+
 //NewAggregator creates new traefik aggregator
 func NewAggregator(traefikURL string, timeout time.Duration) *Aggregator {
 	return &Aggregator{
@@ -52,7 +79,7 @@ func NewAggregator(traefikURL string, timeout time.Duration) *Aggregator {
 
 //AggregateHealth aggregates health info
 func (a *Aggregator) AggregateHealth() map[string]interface{} {
-	return a.aggregate(func(ni *aggregator.NodeInfo) (interface{}, error) {
+	return a.aggregate(func(ni *NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
 		if "" != ni.GetHealthEndpoint() {
 			_, e := a.r.R().SetResult(&rs).SetError(&rs).Get(ni.GetHealthEndpoint())
@@ -69,7 +96,7 @@ func (a *Aggregator) AggregateHealth() map[string]interface{} {
 
 //AggregateInfo aggregates info
 func (a *Aggregator) AggregateInfo() map[string]interface{} {
-	return a.aggregate(func(info *aggregator.NodeInfo) (interface{}, error) {
+	return a.aggregate(func(info *NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
 		_, e := a.r.R().SetResult(&rs).Get(info.GetInfoEndpoint())
 		if nil != e {
@@ -84,7 +111,7 @@ func (a *Aggregator) AggregateInfo() map[string]interface{} {
 	})
 }
 
-func (a *Aggregator) aggregate(f func(ni *aggregator.NodeInfo) (interface{}, error)) map[string]interface{} {
+func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[string]interface{} {
 
 	nodesInfo, err := a.getNodesInfo()
 	if err != nil {
@@ -98,7 +125,7 @@ func (a *Aggregator) aggregate(f func(ni *aggregator.NodeInfo) (interface{}, err
 	wg.Add(nodeLen)
 	var mu sync.Mutex
 	for node, info := range nodesInfo {
-		go func(node string, info *aggregator.NodeInfo) {
+		go func(node string, info *NodeInfo) {
 			defer wg.Done()
 			res, err := f(info)
 			if nil == err {
@@ -112,7 +139,7 @@ func (a *Aggregator) aggregate(f func(ni *aggregator.NodeInfo) (interface{}, err
 	return aggregated
 }
 
-func (a *Aggregator) getNodesInfo() (map[string]*aggregator.NodeInfo, error) {
+func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 
 	var provider Provider
 	_, err := a.r.R().SetResult(&provider).Get(a.lbURL)
@@ -120,11 +147,11 @@ func (a *Aggregator) getNodesInfo() (map[string]*aggregator.NodeInfo, error) {
 		return nil, err
 	}
 
-	nodesInfo := make(map[string]*aggregator.NodeInfo, len(provider.Backends))
+	nodesInfo := make(map[string]*NodeInfo, len(provider.Backends))
 
 	for bName, b := range provider.Backends {
 		backName := bName[strings.LastIndex(bName, "backend-")+len("backend-"):]
-		nodesInfo[backName] = &aggregator.NodeInfo{URL: getFirstNode(b.Servers).URL}
+		nodesInfo[backName] = &NodeInfo{URL: getFirstNode(b.Servers).URL}
 	}
 
 	return nodesInfo, nil

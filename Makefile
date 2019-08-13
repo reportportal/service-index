@@ -34,7 +34,7 @@ test: vendor
 
 
 checkstyle:
-#	docker run --rm -v ${PWD}:/app -w="/app" golangci/golangci-lint:v1.17 golangci-lint run
+	golangci-lint run
 
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}

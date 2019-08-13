@@ -7,6 +7,8 @@ import (
 	"github.com/reportportal/commons-go/commons"
 	"github.com/reportportal/commons-go/conf"
 	"github.com/reportportal/commons-go/server"
+	"github.com/reportportal/service-index/aggregator"
+	"github.com/reportportal/service-index/k8s"
 	"github.com/reportportal/service-index/traefik"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -21,7 +23,10 @@ func main() {
 
 	rpCfg := struct {
 		*conf.ServerConfig
-		LbURL string `env:"LB_URL" envDefault:"http://localhost:9091"`
+		K8sMode bool   `env:"K8S_MODE" envDefault:"false"`
+		K8SNs   string `env:"K8S_NAMESPACE" envDefault:"default"`
+
+		TraefikLbURL string `env:"LB_URL" envDefault:"http://localhost:9091"`
 	}{
 		ServerConfig: cfg,
 	}
@@ -36,7 +41,15 @@ func main() {
 
 	srv := server.New(rpCfg.ServerConfig, info)
 
-	aggregator := traefik.NewAggregator(rpCfg.LbURL, httpClientTimeout)
+	var aggreg aggregator.Aggregator
+	if rpCfg.K8sMode {
+		aggreg, err = k8s.NewAggregator(rpCfg.K8SNs, httpClientTimeout)
+		if nil != err {
+			log.Fatalf("Incorrect K8S config %s", err.Error())
+		}
+	} else {
+		aggreg = traefik.NewAggregator(rpCfg.TraefikLbURL, httpClientTimeout)
+	}
 
 	srv.WithRouter(func(router *chi.Mux) {
 		router.Use(middleware.Logger)
@@ -45,12 +58,12 @@ func main() {
 		})
 
 		router.HandleFunc("/composite/info", func(w http.ResponseWriter, r *http.Request) {
-			if err := server.WriteJSON(http.StatusOK, aggregator.AggregateInfo(), w); nil != err {
+			if err := server.WriteJSON(http.StatusOK, aggreg.AggregateInfo(), w); nil != err {
 				log.Error(err)
 			}
 		})
 		router.HandleFunc("/composite/health", func(w http.ResponseWriter, r *http.Request) {
-			if err := server.WriteJSON(http.StatusOK, aggregator.AggregateHealth(), w); nil != err {
+			if err := server.WriteJSON(http.StatusOK, aggreg.AggregateHealth(), w); nil != err {
 				log.Error(err)
 			}
 		})
