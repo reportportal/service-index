@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/reportportal/commons-go/commons"
@@ -23,9 +22,7 @@ func main() {
 
 	rpCfg := struct {
 		*conf.ServerConfig
-		K8sMode bool   `env:"K8S_MODE" envDefault:"false"`
-		K8SNs   string `env:"K8S_NAMESPACE" envDefault:"default"`
-
+		K8sMode      bool   `env:"K8S_MODE" envDefault:"false"`
 		TraefikLbURL string `env:"LB_URL" envDefault:"http://localhost:9091"`
 	}{
 		ServerConfig: cfg,
@@ -41,9 +38,10 @@ func main() {
 
 	srv := server.New(rpCfg.ServerConfig, info)
 
+	log.Infof("K8S mode enabled: %t", rpCfg.K8sMode)
 	var aggreg aggregator.Aggregator
 	if rpCfg.K8sMode {
-		aggreg, err = k8s.NewAggregator(rpCfg.K8SNs, httpClientTimeout)
+		aggreg, err = k8s.NewAggregator(httpClientTimeout)
 		if nil != err {
 			log.Fatalf("Incorrect K8S config %s", err.Error())
 		}
@@ -75,6 +73,5 @@ func main() {
 		})
 
 	})
-	fmt.Println(info)
 	srv.StartServer()
 }

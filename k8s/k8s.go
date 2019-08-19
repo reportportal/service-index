@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/resty.v1"
+	"io/ioutil"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	//all auth types are supported
@@ -15,11 +16,16 @@ import (
 	"time"
 )
 
-const domainPattern = "%s.svc.cluster.local"
+const (
+	domainPattern = "%s.svc.cluster.local"
+	nsSecret      = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
+	labelSelector = "app=reportportal"
+)
 
 //Aggregator is an info/health aggregator implementation for k8s
 type Aggregator struct {
 	localDomain string
+	ns          string
 	clientset   *kubernetes.Clientset
 	r           *resty.Client
 }
@@ -27,20 +33,28 @@ type Aggregator struct {
 //NodeInfo embeds node-related information
 type NodeInfo struct {
 	srv            string
+	portName       string
 	infoEndpoint   string
 	healthEndpoint string
 }
 
 //NewAggregator creates new k8s aggregator
-func NewAggregator(ns string, timeout time.Duration) (*Aggregator, error) {
+func NewAggregator(timeout time.Duration) (*Aggregator, error) {
+	ns, err := getCurrentNamespace()
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to find out current namespace: %v", err)
+	}
+
+	log.Infof("Namespace: %s", ns)
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
+
 	if err != nil {
-		log.Error(err)
+		log.Errorf("Unable to create k8s client: %v", err)
 		return nil, err
 	}
 	return &Aggregator{
@@ -48,7 +62,8 @@ func NewAggregator(ns string, timeout time.Duration) (*Aggregator, error) {
 		localDomain: fmt.Sprintf(domainPattern, ns),
 		r: resty.NewWithClient(&http.Client{
 			Timeout: timeout,
-		}),
+		}).SetScheme("http"),
+		ns: ns,
 	}, nil
 }
 
@@ -56,7 +71,7 @@ func NewAggregator(ns string, timeout time.Duration) (*Aggregator, error) {
 func (a *Aggregator) AggregateHealth() map[string]interface{} {
 	return a.aggregate(func(ni *NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
-		_, e := a.r.R().SetSRV(&resty.SRVRecord{Service: ni.srv, Domain: a.localDomain}).SetResult(&rs).SetError(&rs).Get(ni.healthEndpoint)
+		_, e := a.r.R().SetSRV(&resty.SRVRecord{Service: ni.srv, Domain: ni.srv}).SetResult(&rs).SetError(&rs).Get(ni.healthEndpoint)
 		if nil != e {
 			rs = map[string]interface{}{"status": "DOWN"}
 		}
@@ -69,7 +84,7 @@ func (a *Aggregator) AggregateHealth() map[string]interface{} {
 func (a *Aggregator) AggregateInfo() map[string]interface{} {
 	return a.aggregate(func(ni *NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
-		_, e := a.r.R().SetSRV(&resty.SRVRecord{Service: ni.srv, Domain: a.localDomain}).SetResult(&rs).Get(ni.infoEndpoint)
+		_, e := a.r.R().SetSRV(&resty.SRVRecord{Service: ni.portName, Domain: ni.srv}).SetResult(&rs).Get(ni.infoEndpoint)
 		if nil != e {
 			log.Errorf("Unable to aggregate info: %v", e)
 			return nil, e
@@ -83,9 +98,10 @@ func (a *Aggregator) AggregateInfo() map[string]interface{} {
 }
 
 func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[string]interface{} {
-
+	log.Debug("Aggregating node information")
 	nodesInfo, err := a.getNodesInfo()
 	if err != nil {
+		log.Errorf("Unable to aggregate node information: %v", err)
 		return map[string]interface{}{}
 	}
 
@@ -112,19 +128,25 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 
 func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 
-	services, err := a.clientset.CoreV1().Services("reportportal").List(metav1.ListOptions{
-		LabelSelector: "app=reportportal",
+	services, err := a.clientset.CoreV1().Services(a.ns).List(metav1.ListOptions{
+		LabelSelector: labelSelector,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	nodesInfo := make(map[string]*NodeInfo, len(services.Items))
+	srvCount := len(services.Items)
+	log.Infof("Selected %d ReportPortal's services", srvCount)
+	nodesInfo := make(map[string]*NodeInfo, srvCount)
 	for _, srv := range services.Items {
 		log.Debugf("Info found for service %s", srv.GetName())
 
 		var srvName = srv.GetAnnotations()["service"]
-		ni := &NodeInfo{srv: srv.GetName()}
+		if srvName == "" {
+			continue
+		}
+
+		ni := &NodeInfo{srv: srv.GetName() + "." + a.localDomain}
 		if ie, ok := srv.GetAnnotations()["infoEndpoint"]; ok {
 			ni.infoEndpoint = ie
 		} else {
@@ -136,7 +158,18 @@ func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 			ni.healthEndpoint = "/health"
 		}
 
+		if len(srv.Spec.Ports) > 0 {
+			ni.portName = srv.Spec.Ports[0].Name
+		}
 		nodesInfo[srvName] = ni
 	}
 	return nodesInfo, nil
+}
+
+func getCurrentNamespace() (string, error) {
+	ns, err := ioutil.ReadFile(nsSecret)
+	if err != nil {
+		return "", err
+	}
+	return string(ns), nil
 }

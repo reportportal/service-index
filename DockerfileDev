@@ -1,6 +1,10 @@
-FROM scratch
+FROM alpine:latest
 
 MAINTAINER Andrei Varabyeu <andrei_varabyeu@epam.com>
+
+ARG service
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
 
 ADD ./bin/service-index /
 
