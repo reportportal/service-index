@@ -1,6 +1,7 @@
 FROM alpine:latest
 
 MAINTAINER Andrei Varabyeu <andrei_varabyeu@epam.com>
+LABEL quay.expires-after=1w
 
 ARG service
 RUN apk --no-cache add ca-certificates
