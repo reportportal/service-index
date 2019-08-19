@@ -6,7 +6,10 @@ go:
 env:
   - GO111MODULE=on
 
-script: make build
+before_script:
+  - go install github.com/golangci/golangci-lint/cmd/golangci-lint
+
+script: make checkstyle build
 
 notifications:
   slack: reportportal-dev:fl6xWHVQp1jvsMmCJxYW9YKP
