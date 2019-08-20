@@ -17,7 +17,7 @@ podTemplate(
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:latest', command: 'cat', ttyEnabled: true),
 //                containerTemplate(name: 'yq', image: 'mikefarah/yq', command: 'cat', ttyEnabled: true)
-                containerTemplate(name: 'jq', image: 'stedolan/jq', command: 'cat', ttyEnabled: true)
+                containerTemplate(name: 'jq', image: 'everpeace/curl-jq', command: 'cat', ttyEnabled: true)
         ],
         volumes: [
                 emptyDirVolume(memory: false, mountPath: '/var/lib/docker'),
@@ -80,8 +80,8 @@ podTemplate(
         def utils = load "${ciDir}/jenkins/scripts/util.groovy"
 
         stage('DVT Test') {
+            def srvUrl = utils.getServiceUrl("reportportal", "index")
             container('jq') {
-                def srvUrl = utils.getServiceUrl("reportportal", "index")
                 test.checkVersion(srvUrl, "$srvVersion")
             }
         }
