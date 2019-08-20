@@ -17,6 +17,7 @@ podTemplate(
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:latest', command: 'cat', ttyEnabled: true),
 //                containerTemplate(name: 'yq', image: 'mikefarah/yq', command: 'cat', ttyEnabled: true)
+                containerTemplate(name: 'jq', image: 'stedolan/jq', command: 'cat', ttyEnabled: true)
         ],
         volumes: [
                 emptyDirVolume(memory: false, mountPath: '/var/lib/docker'),
@@ -78,44 +79,12 @@ podTemplate(
         def test = load "${ciDir}/jenkins/scripts/test.groovy"
         def utils = load "${ciDir}/jenkins/scripts/util.groovy"
 
-        dir(appDir) {
-            container('golang') {
-                stage('Build') {
-//                    sh "make get-build-deps"
-                    sh "make build v=$srvVersion"
-                }
-            }
-            container('docker') {
-                stage('Build Image') {
-                    sh "docker build -t $tag -f DockerfileDev ."
-                }
-                stage('Push Image') {
-                    sh "docker push $tag"
-                }
-            }
-        }
-
-        stage('Deploy to Dev') {
-//            container('yq') {
-//                dir('reportportal-ci/rp') {
-//                    sh "yq w -i values-ci.yml serviceindex.repository $srvRepo"
-//                    sh "yq w -i values-ci.yml serviceindex.tag $srvVersion"
-//                }
-//            }
-
-            container('helm') {
-                dir("$k8sDir/reportportal/v5/v5") {
-                    sh 'helm dependency update'
-                }
-                sh "helm upgrade --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f ./$ciDir/rp/values-ci.yml reportportal ./$k8sDir/reportportal/v5/v5"
-            }
-        }
-
         stage('DVT Test') {
-            def srvUrl = utils.getServiceUrl("reportportal", "index")
-            test.checkVersion(srvUrl, "$srvVersion")
+            container('jq') {
+                def srvUrl = utils.getServiceUrl("reportportal", "index")
+                test.checkVersion(srvUrl, "$srvVersion")
+            }
         }
-
     }
 }
 
