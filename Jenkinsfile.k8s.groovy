@@ -30,6 +30,10 @@ podTemplate(
         def srvVersion = "BUILD-${env.BUILD_NUMBER}"
         def tag = "$srvRepo:$srvVersion"
 
+        def k8sDir = "kubernetes"
+        def ciDir = "reportportal-ci"
+        def appDir = "app"
+
         properties([
                 pipelineTriggers([
                         pollSCM('H/10 * * * *')
@@ -54,27 +58,30 @@ podTemplate(
                 sh 'mkdir -p ~/.ssh'
                 sh 'ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts'
                 sh 'ssh-keyscan -t rsa git.epam.com >> ~/.ssh/known_hosts'
-                dir('kubernetes') {
+                dir(k8sDir) {
                     git branch: "master", url: 'https://github.com/reportportal/kubernetes.git'
 
                 }
-                dir('reportportal-ci') {
+                dir(ciDir) {
                     git credentialsId: 'epm-gitlab-key', branch: "master", url: 'git@git.epam.com:epmc-tst/reportportal-ci.git'
                 }
 
             }
         }, 'Checkout Service': {
             stage('Checkout Service') {
-                dir('app') {
+                dir(appDir) {
                     checkout scm
                 }
             }
         }
 
-        dir('app') {
+        def test = load "${ciDir}/jenkins/scripts/test.groovy"
+        def util = load "${ciDir}/jenkins/scripts/util.groovy"
+
+        dir(appDir) {
             container('golang') {
                 stage('Build') {
-                    sh "make get-build-deps"
+//                    sh "make get-build-deps"
                     sh "make build v=$srvVersion"
                 }
             }
@@ -97,13 +104,16 @@ podTemplate(
 //            }
 
             container('helm') {
-                dir('kubernetes/reportportal/v5/v5') {
+                dir("$k8sDir/reportportal/v5/v5") {
                     sh 'helm dependency update'
                 }
-                sh "helm upgrade --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f ./reportportal-ci/rp/values-ci.yml reportportal ./kubernetes/reportportal/v5/v5"
+                sh "helm upgrade --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f ./$ciDir/rp/values-ci.yml reportportal ./$k8sDir/reportportal/v5/v5"
             }
         }
 
+        stage('DVT Test') {
+            test.checkVersion(util.getServiceUrl("reportportal", "index"), "$srvVersion")
+        }
 
     }
 }
