@@ -76,7 +76,7 @@ podTemplate(
         }
 
         def test = load "${ciDir}/jenkins/scripts/test.groovy"
-        def util = load "${ciDir}/jenkins/scripts/util.groovy"
+        def utils = load "${ciDir}/jenkins/scripts/util.groovy"
 
         dir(appDir) {
             container('golang') {
@@ -112,7 +112,8 @@ podTemplate(
         }
 
         stage('DVT Test') {
-            test.checkVersion(util.getServiceUrl("reportportal", "index"), "$srvVersion")
+            def srvUrl = utils.getServiceUrl("reportportal", "index")
+            test.checkVersion(srvUrl, "$srvVersion")
         }
 
     }
