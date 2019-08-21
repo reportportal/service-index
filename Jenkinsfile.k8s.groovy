@@ -17,7 +17,7 @@ podTemplate(
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:latest', command: 'cat', ttyEnabled: true),
 //                containerTemplate(name: 'yq', image: 'mikefarah/yq', command: 'cat', ttyEnabled: true)
-                containerTemplate(name: 'jq', image: 'everpeace/curl-jq', command: 'cat', ttyEnabled: true)
+                containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true)
         ],
         volumes: [
                 emptyDirVolume(memory: false, mountPath: '/var/lib/docker'),
@@ -34,12 +34,6 @@ podTemplate(
         def k8sDir = "kubernetes"
         def ciDir = "reportportal-ci"
         def appDir = "app"
-
-        properties([
-                pipelineTriggers([
-                        pollSCM('H/10 * * * *')
-                ])
-        ])
 
         stage('Configure') {
             container('docker') {
@@ -75,6 +69,11 @@ podTemplate(
                 }
             }
         }
+        def test = load "${ciDir}/jenkins/scripts/test.groovy"
+        def utils = load "${ciDir}/jenkins/scripts/util.groovy"
+
+
+        utils.scheduleRepoPoll()
 
         dir('app') {
             container('golang') {
@@ -109,9 +108,6 @@ podTemplate(
             }
         }
 
-        def test = load "${ciDir}/jenkins/scripts/test.groovy"
-        def utils = load "${ciDir}/jenkins/scripts/util.groovy"
-
         stage('DVT Test') {
             def srvUrl
             container('kubectl') {
@@ -120,7 +116,7 @@ podTemplate(
             if (srvUrl == null) {
                 error("Unable to retrieve service URL")
             }
-            container('jq') {
+            container('httpie') {
                 test.checkVersion("http://$srvUrl", "$srvVersion")
             }
         }
