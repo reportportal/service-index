@@ -84,7 +84,7 @@ podTemplate(
             container('kubectl') {
                 srvUrl = utils.getServiceEndpoint("reportportal", "index-0")
             }
-            if ($srvUrl == null) {
+            if (srvUrl == null) {
                 error("Unable to retrieve service URL")
             }
             container('jq') {
