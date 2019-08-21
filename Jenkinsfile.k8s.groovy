@@ -59,20 +59,53 @@ podTemplate(
                 sh 'mkdir -p ~/.ssh'
                 sh 'ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts'
                 sh 'ssh-keyscan -t rsa git.epam.com >> ~/.ssh/known_hosts'
-                dir(k8sDir) {
+                dir('kubernetes') {
                     git branch: "master", url: 'https://github.com/reportportal/kubernetes.git'
 
                 }
-                dir(ciDir) {
+                dir('reportportal-ci') {
                     git credentialsId: 'epm-gitlab-key', branch: "master", url: 'git@git.epam.com:epmc-tst/reportportal-ci.git'
                 }
 
             }
         }, 'Checkout Service': {
             stage('Checkout Service') {
-                dir(appDir) {
+                dir('app') {
                     checkout scm
                 }
+            }
+        }
+
+        dir('app') {
+            container('golang') {
+                stage('Build') {
+                    sh "make get-build-deps"
+                    sh "make build v=$srvVersion"
+                }
+            }
+            container('docker') {
+                stage('Build Image') {
+                    sh "docker build -t $tag -f DockerfileDev ."
+                }
+                stage('Push Image') {
+                    sh "docker push $tag"
+                }
+            }
+        }
+
+        stage('Deploy to Dev') {
+//            container('yq') {
+//                dir('reportportal-ci/rp') {
+//                    sh "yq w -i values-ci.yml serviceindex.repository $srvRepo"
+//                    sh "yq w -i values-ci.yml serviceindex.tag $srvVersion"
+//                }
+//            }
+
+            container('helm') {
+                dir('kubernetes/reportportal/v5/v5') {
+                    sh 'helm dependency update'
+                }
+                sh "helm upgrade --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f ./reportportal-ci/rp/values-ci.yml reportportal ./kubernetes/reportportal/v5/v5"
             }
         }
 
