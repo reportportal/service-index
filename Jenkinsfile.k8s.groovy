@@ -80,9 +80,9 @@ podTemplate(
         def utils = load "${ciDir}/jenkins/scripts/util.groovy"
 
         stage('DVT Test') {
-            def srvUrl = utils.buildServiceUrl("reportportal", "index")
+            def srvUrl = utils.getServiceEndpoint("reportportal", "index")
             container('jq') {
-                test.checkVersion(srvUrl, "$srvVersion")
+                test.checkVersion("http://$srvUrl", "$srvVersion")
             }
         }
     }
