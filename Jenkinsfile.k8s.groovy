@@ -80,7 +80,13 @@ podTemplate(
         def utils = load "${ciDir}/jenkins/scripts/util.groovy"
 
         stage('DVT Test') {
-            def srvUrl = utils.getServiceEndpoint("reportportal", "index")
+            def srvUrl
+            container('kubectl') {
+                srvUrl = utils.getServiceEndpoint("reportportal", "index-0")
+            }
+            if ($srvUrl == null) {
+                error("Unable to retrieve service URL")
+            }
             container('jq') {
                 test.checkVersion("http://$srvUrl", "$srvVersion")
             }
