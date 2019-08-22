@@ -1,9 +1,8 @@
 #!groovy
 
 //String podTemplateConcat = "${serviceName}-${buildNumber}-${uuid}"
-def label = "worker-${UUID.randomUUID().toString()}"
-println("label")
-println("${label}")
+def label = "worker-${env.JOB_NAME}-${UUID.randomUUID().toString()}"
+println("Worker name: ${label}")
 
 podTemplate(
         label: "${label}",
