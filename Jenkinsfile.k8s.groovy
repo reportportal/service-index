@@ -34,15 +34,6 @@ podTemplate(
         def ciDir = "reportportal-ci"
         def appDir = "app"
 
-        stage('Configure') {
-            container('docker') {
-                sh 'echo "Initialize environment"'
-                sh """
-                QUAY_USER=\$(cat "/etc/.dockercreds/username")
-                cat "/etc/.dockercreds/password" | docker login -u \$QUAY_USER --password-stdin quay.io
-                """
-            }
-        }
         parallel 'Checkout Infra': {
             stage('Checkout Infra') {
                 sh 'mkdir -p ~/.ssh'
@@ -67,7 +58,9 @@ podTemplate(
         def test = load "${ciDir}/jenkins/scripts/test.groovy"
         def utils = load "${ciDir}/jenkins/scripts/util.groovy"
         def helm = load "${ciDir}/jenkins/scripts/helm.groovy"
+        def docker = load "${ciDir}/jenkins/scripts/docker.groovy"
 
+        docker.init()
         helm.init()
 
 
