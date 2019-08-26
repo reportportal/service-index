@@ -21,7 +21,7 @@ podTemplate(
         volumes: [
                 emptyDirVolume(memory: false, mountPath: '/var/lib/docker'),
                 secretVolume(mountPath: '/etc/.dockercreds', secretName: 'docker-creds'),
-                hostPathVolume(mountPath: '/usr/local/go/pkg/mod', hostPath: '/tmp/jenkins/go')
+                hostPathVolume(mountPath: '/go/pkg/mod', hostPath: '/tmp/jenkins/go')
         ]
 ) {
 
