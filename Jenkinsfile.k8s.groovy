@@ -100,10 +100,10 @@ podTemplate(
 //            }
 
             container('helm') {
-                dir('kubernetes/reportportal/v5/v5') {
+                dir('kubernetes/reportportal/v5') {
                     sh 'helm dependency update'
                 }
-                sh "helm upgrade --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f ./reportportal-ci/rp/values-ci.yml reportportal ./kubernetes/reportportal/v5/v5"
+                sh "helm upgrade --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f ./reportportal-ci/rp/values-ci.yml reportportal ./kubernetes/reportportal/v5"
             }
         }
 
