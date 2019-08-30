@@ -15,7 +15,7 @@ podTemplate(
 
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:latest', command: 'cat', ttyEnabled: true),
-//                containerTemplate(name: 'yq', image: 'mikefarah/yq', command: 'cat', ttyEnabled: true)
+                containerTemplate(name: 'yq', image: 'mikefarah/yq', command: 'cat', ttyEnabled: true)
                 containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true)
         ],
         volumes: [
@@ -31,7 +31,9 @@ podTemplate(
         def tag = "$srvRepo:$srvVersion"
 
         def k8sDir = "kubernetes"
-        def ciDir = "reportportal-ci"
+        def k8sChartDir = "$k8sDir/reportportal/v5/"
+
+        def ciDir = "reportportal-ci/rp"
         def appDir = "app"
 
         parallel 'Checkout Infra': {
@@ -84,18 +86,16 @@ podTemplate(
         }
 
         stage('Deploy to Dev') {
-//            container('yq') {
-//                dir('reportportal-ci/rp') {
-//                    sh "yq w -i values-ci.yml serviceindex.repository $srvRepo"
-//                    sh "yq w -i values-ci.yml serviceindex.tag $srvVersion"
-//                }
-//            }
+            def valsFile = "merged.yml"
+            container('yq') {
+                sh "yq m -x values-ci.yml $k8sChartDirvalues.yml $ciDir/values-ci.yml > $valsFile"
+            }
 
             container('helm') {
                 dir('kubernetes/reportportal/v5') {
                     sh 'helm dependency update'
                 }
-                sh "helm upgrade --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f ./reportportal-ci/rp/values-ci.yml reportportal ./kubernetes/reportportal/v5"
+                sh "helm upgrade --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f $valsFile reportportal ./$k8sChartDir"
             }
         }
 
