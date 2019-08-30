@@ -97,7 +97,7 @@ podTemplate(
             }
 
             container('helm') {
-                dir('kubernetes/reportportal/v5') {
+                dir(k8sChartDir) {
                     sh 'helm dependency update'
                 }
                 sh "helm upgrade --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f $valsFile reportportal ./$k8sChartDir"
