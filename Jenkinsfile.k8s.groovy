@@ -29,10 +29,16 @@ podTemplate(
         def srvVersion = "BUILD-${env.BUILD_NUMBER}"
         def tag = "$srvRepo:$srvVersion"
 
+        /**
+         * General ReportPortal Kubernetes Configuration and Helm Chart
+         */
         def k8sDir = "kubernetes"
         def k8sChartDir = "$k8sDir/reportportal/v5/"
 
-        def ciDir = "reportportal-ci/rp"
+        /**
+         * Jenkins utilities and environment Specific k8s configuration
+         */
+        def ciDir = "reportportal-ci"
         def appDir = "app"
 
         parallel 'Checkout Infra': {
@@ -87,7 +93,7 @@ podTemplate(
         stage('Deploy to Dev') {
             def valsFile = "merged.yml"
             container('yq') {
-                sh "yq m -x values-ci.yml $k8sChartDirvalues.yml $ciDir/values-ci.yml > $valsFile"
+                sh "yq m -x values-ci.yml $k8sChartDirvalues.yml $ciDir/rp/values-ci.yml > $valsFile"
             }
 
             container('helm') {
