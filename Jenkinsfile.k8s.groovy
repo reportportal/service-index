@@ -33,7 +33,7 @@ podTemplate(
          * General ReportPortal Kubernetes Configuration and Helm Chart
          */
         def k8sDir = "kubernetes"
-        def k8sChartDir = "$k8sDir/reportportal/v5/"
+        def k8sChartDir = "$k8sDir/reportportal/v5"
 
         /**
          * Jenkins utilities and environment Specific k8s configuration
