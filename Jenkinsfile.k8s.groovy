@@ -93,7 +93,7 @@ podTemplate(
         stage('Deploy to Dev') {
             def valsFile = "merged.yml"
             container('yq') {
-                sh "yq m -x $k8sChartDir/values.yml $ciDir/rp/values-ci.yml > $valsFile"
+                sh "yq m -x $k8sChartDir/values.yaml $ciDir/rp/values-ci.yml > $valsFile"
             }
 
             container('helm') {
