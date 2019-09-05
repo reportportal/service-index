@@ -15,8 +15,8 @@ podTemplate(
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:latest', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'yq', image: 'mikefarah/yq', command: 'cat', ttyEnabled: true),
-                containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true),
-                containerTemplate(name: 'postman', image: 'postman/newman:alpine', command: 'cat', ttyEnabled: true)
+                containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true)
+//                containerTemplate(name: 'postman', image: 'postman/newman:alpine', command: 'cat', ttyEnabled: true)
         ],
         volumes: [
                 hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
@@ -56,9 +56,9 @@ podTemplate(
                     git credentialsId: 'epm-gitlab-key', branch: "master", url: 'git@git.epam.com:epmc-tst/reportportal-ci.git'
                 }
 
-                dir(testsDir) {
-                    git credentialsId: 'epm-gitlab-key', branch: "master", url: 'git@git.epam.com:epm-rpp/tests.git'
-                }
+//                dir(testsDir) {
+//                    git credentialsId: 'epm-gitlab-key', branch: "master", url: 'git@git.epam.com:epm-rpp/tests.git'
+//                }
 
             }
         }, 'Checkout Service': {
@@ -123,14 +123,14 @@ podTemplate(
             }
         }
 
-        stage('Smoke Tests') {
-            def srvUrl
-            dir (testsDir) {
-                container('postman') {
-                    sh "newman run postman/service-api.postman_collection.json --env-var rp_url=https://rp.avarabyeu.me av.postman_environment.json -r cli,junit"
-                }
-            }
-        }
+//        stage('Smoke Tests') {
+//            def srvUrl
+//            dir (testsDir) {
+//                container('postman') {
+//                    sh "newman run postman/service-api.postman_collection.json --env-var rp_url=https://rp.avarabyeu.me av.postman_environment.json -r cli,junit"
+//                }
+//            }
+//        }
 
     }
 }
