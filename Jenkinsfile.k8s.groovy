@@ -16,7 +16,7 @@ podTemplate(
                 containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:latest', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'yq', image: 'mikefarah/yq', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true),
-                containerTemplate(name: 'postman', image: 'postman/newman', command: 'cat', ttyEnabled: true)
+                containerTemplate(name: 'postman', image: 'postman/newman:alpine', command: 'cat', ttyEnabled: true)
         ],
         volumes: [
                 hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
