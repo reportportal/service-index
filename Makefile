@@ -33,7 +33,7 @@ test: vendor
 
 
 checkstyle:
-	golangci-lint run
+	golangci-lint run --deadline 10m
 
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
