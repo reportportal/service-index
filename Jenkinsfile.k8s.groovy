@@ -100,6 +100,7 @@ podTemplate(
             def valsFile = "merged.yml"
             container('yq') {
                 sh "yq m -x $k8sChartDir/values.yaml $ciDir/rp/values-ci.yml > $valsFile"
+                sh "cat $valsFile"
             }
 
             container('helm') {
