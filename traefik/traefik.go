@@ -11,7 +11,8 @@ import (
 	"time"
 )
 
-const dockerProviderBaseURL = "/api/providers/docker"
+const traefikV1ProvidersURL = "/api/providers/docker"
+const traefikV2ServicesURL = "/api/http/services"
 
 //Providers represents traefik response model
 type Providers struct {
@@ -36,8 +37,9 @@ type Server struct {
 
 //Aggregator represents traefik response model
 type Aggregator struct {
-	r     *resty.Client
-	lbURL string
+	r          *resty.Client
+	traefikURL string
+	v2         bool
 }
 
 //NodeInfo embeds node-related information
@@ -68,12 +70,13 @@ func (ni *NodeInfo) buildURL(h, path string) string {
 }
 
 //NewAggregator creates new traefik aggregator
-func NewAggregator(traefikURL string, timeout time.Duration) *Aggregator {
+func NewAggregator(traefikURL string, traefikV2 bool, timeout time.Duration) *Aggregator {
 	return &Aggregator{
 		r: resty.NewWithClient(&http.Client{
 			Timeout: timeout,
 		}),
-		lbURL: traefikURL + dockerProviderBaseURL,
+		traefikURL: traefikURL,
+		v2:         traefikV2,
 	}
 }
 
@@ -113,7 +116,14 @@ func (a *Aggregator) AggregateInfo() map[string]interface{} {
 
 func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[string]interface{} {
 
-	nodesInfo, err := a.getNodesInfo()
+	var nodesInfo map[string]*NodeInfo
+	var err error
+	if a.v2 {
+		nodesInfo, err = a.getNodesInfoV2()
+	} else {
+		nodesInfo, err = a.getNodesInfo()
+	}
+
 	if err != nil {
 		return map[string]interface{}{}
 	}
@@ -142,7 +152,7 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 
 	var provider Provider
-	_, err := a.r.R().SetResult(&provider).Get(a.lbURL)
+	_, err := a.r.R().SetResult(&provider).Get(a.traefikURL + traefikV1ProvidersURL)
 	if nil != err {
 		return nil, err
 	}
@@ -156,10 +166,108 @@ func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 
 	return nodesInfo, nil
 }
+func (a *Aggregator) getNodesInfoV2() (map[string]*NodeInfo, error) {
+
+	var serviceInfo []*serviceRepresentation
+	rs, err := a.r.R().SetResult(&serviceInfo).Get(a.traefikURL + traefikV2ServicesURL)
+	if nil != err {
+		return nil, err
+	}
+	if rs.StatusCode() != http.StatusOK {
+		return nil, errors.New("unable to update health info")
+	}
+
+	nodesInfo := make(map[string]*NodeInfo, len(serviceInfo))
+
+	for _, b := range serviceInfo {
+		backName := b.Name[:strings.LastIndex(b.Name, "@")]
+		nodesInfo[backName] = &NodeInfo{URL: b.LoadBalancer.Servers[0].URL}
+	}
+
+	return nodesInfo, nil
+}
 
 func getFirstNode(m map[string]*Server) *Server {
 	for _, v := range m {
 		return v
 	}
 	return nil
+}
+
+type serviceRepresentation struct {
+	*ServiceInfo
+	ServerStatus map[string]string `json:"serverStatus,omitempty"`
+	Name         string            `json:"name,omitempty"`
+	Provider     string            `json:"provider,omitempty"`
+	Type         string            `json:"type,omitempty"`
+}
+
+// ServiceInfo holds information about a currently running service.
+type ServiceInfo struct {
+	LoadBalancer *ServersLoadBalancer `json:"loadBalancer,omitempty" toml:"loadBalancer,omitempty" yaml:"loadBalancer,omitempty"`
+	Weighted     *WeightedRoundRobin  `json:"weighted,omitempty" toml:"weighted,omitempty" yaml:"weighted,omitempty" label:"-"`
+	Mirroring    *Mirroring           `json:"mirroring,omitempty" toml:"mirroring,omitempty" yaml:"mirroring,omitempty" label:"-"`
+
+	// Err contains all the errors that occurred during service creation.
+	Err []string `json:"error,omitempty"`
+	// Status reports whether the service is disabled, in a warning state, or all good (enabled).
+	// If not in "enabled" state, the reason for it should be in the list of Err.
+	// It is the caller's responsibility to set the initial status.
+	Status string   `json:"status,omitempty"`
+	UsedBy []string `json:"usedBy,omitempty"` // list of routers using that service
+}
+
+// ServersLoadBalancer holds the ServersLoadBalancer configuration.
+type ServersLoadBalancer struct {
+	Servers     []Server     `json:"servers,omitempty" toml:"servers,omitempty" yaml:"servers,omitempty" label-slice-as-struct:"server"`
+	HealthCheck *HealthCheck `json:"healthCheck,omitempty" toml:"healthCheck,omitempty" yaml:"healthCheck,omitempty"`
+}
+
+// HealthCheck holds the HealthCheck configuration.
+type HealthCheck struct {
+	Scheme   string            `json:"scheme,omitempty" toml:"scheme,omitempty" yaml:"scheme,omitempty"`
+	Path     string            `json:"path,omitempty" toml:"path,omitempty" yaml:"path,omitempty"`
+	Port     int               `json:"port,omitempty" toml:"port,omitempty,omitzero" yaml:"port,omitempty"`
+	Interval string            `json:"interval,omitempty" toml:"interval,omitempty" yaml:"interval,omitempty"`
+	Timeout  string            `json:"timeout,omitempty" toml:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Hostname string            `json:"hostname,omitempty" toml:"hostname,omitempty" yaml:"hostname,omitempty"`
+	Headers  map[string]string `json:"headers,omitempty" toml:"headers,omitempty" yaml:"headers,omitempty"`
+}
+
+// Sticky holds the sticky configuration.
+type Sticky struct {
+	Cookie *Cookie `json:"cookie,omitempty" toml:"cookie,omitempty" yaml:"cookie,omitempty"`
+}
+
+// Cookie holds the sticky configuration based on cookie.
+type Cookie struct {
+	Name     string `json:"name,omitempty" toml:"name,omitempty" yaml:"name,omitempty"`
+	Secure   bool   `json:"secure,omitempty" toml:"secure,omitempty" yaml:"secure,omitempty"`
+	HTTPOnly bool   `json:"httpOnly,omitempty" toml:"httpOnly,omitempty" yaml:"httpOnly,omitempty"`
+}
+
+// WeightedRoundRobin is a weighted round robin load-balancer of services.
+type WeightedRoundRobin struct {
+	Services []WRRService `json:"services,omitempty" toml:"services,omitempty" yaml:"services,omitempty"`
+	Sticky   *Sticky      `json:"sticky,omitempty" toml:"sticky,omitempty" yaml:"sticky,omitempty"`
+}
+
+// WRRService is a reference to a service load-balanced with weighted round robin.
+type WRRService struct {
+	Name   string `json:"name,omitempty" toml:"name,omitempty" yaml:"name,omitempty"`
+	Weight *int   `json:"weight,omitempty" toml:"weight,omitempty" yaml:"weight,omitempty"`
+}
+
+// Mirroring holds the Mirroring configuration.
+type Mirroring struct {
+	Service string          `json:"service,omitempty" toml:"service,omitempty" yaml:"service,omitempty"`
+	Mirrors []MirrorService `json:"mirrors,omitempty" toml:"mirrors,omitempty" yaml:"mirrors,omitempty"`
+}
+
+// +k8s:deepcopy-gen=true
+
+// MirrorService holds the MirrorService configuration.
+type MirrorService struct {
+	Name    string `json:"name,omitempty" toml:"name,omitempty" yaml:"name,omitempty"`
+	Percent int    `json:"percent,omitempty" toml:"percent,omitempty" yaml:"percent,omitempty"`
 }
