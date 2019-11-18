@@ -66,6 +66,7 @@ func (ni *NodeInfo) buildURL(h, path string) string {
 	}
 	//u.Host = h
 	u.Path = path
+
 	return u.String()
 }
 
@@ -115,7 +116,6 @@ func (a *Aggregator) AggregateInfo() map[string]interface{} {
 }
 
 func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[string]interface{} {
-
 	var nodesInfo map[string]*NodeInfo
 	var err error
 	if a.v2 {
@@ -150,7 +150,6 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 }
 
 func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
-
 	var provider Provider
 	_, err := a.r.R().SetResult(&provider).Get(a.traefikURL + traefikV1ProvidersURL)
 	if nil != err {
@@ -167,7 +166,6 @@ func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 	return nodesInfo, nil
 }
 func (a *Aggregator) getNodesInfoV2() (map[string]*NodeInfo, error) {
-
 	var serviceInfo []*serviceRepresentation
 	rs, err := a.r.R().SetResult(&serviceInfo).Get(a.traefikURL + traefikV2ServicesURL)
 	if nil != err {

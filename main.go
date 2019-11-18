@@ -17,7 +17,6 @@ import (
 const httpClientTimeout = 5 * time.Second
 
 func main() {
-
 	cfg := conf.EmptyConfig()
 
 	rpCfg := struct {
@@ -73,7 +72,6 @@ func main() {
 		router.HandleFunc("/ui", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/ui/", http.StatusFound)
 		})
-
 	})
 	srv.StartServer()
 }
