@@ -33,7 +33,6 @@ func main() {
 		log.Fatalf("Cannot load config %s", err.Error())
 	}
 
-	rpCfg.Port = 8989
 	info := commons.GetBuildInfo()
 	info.Name = "Index Service"
 
