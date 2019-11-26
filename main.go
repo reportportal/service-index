@@ -17,13 +17,13 @@ import (
 const httpClientTimeout = 5 * time.Second
 
 func main() {
-
 	cfg := conf.EmptyConfig()
 
 	rpCfg := struct {
 		*conf.ServerConfig
-		K8sMode      bool   `env:"K8S_MODE" envDefault:"false"`
-		TraefikLbURL string `env:"LB_URL" envDefault:"http://localhost:9091"`
+		K8sMode       bool   `env:"K8S_MODE" envDefault:"false"`
+		TraefikV2Mode bool   `env:"TRAEFIK_V2_MODE" envDefault:"false"`
+		TraefikLbURL  string `env:"LB_URL" envDefault:"http://localhost:9091"`
 	}{
 		ServerConfig: cfg,
 	}
@@ -46,7 +46,7 @@ func main() {
 			log.Fatalf("Incorrect K8S config %s", err.Error())
 		}
 	} else {
-		aggreg = traefik.NewAggregator(rpCfg.TraefikLbURL, httpClientTimeout)
+		aggreg = traefik.NewAggregator(rpCfg.TraefikLbURL, rpCfg.TraefikV2Mode, httpClientTimeout)
 	}
 
 	srv.WithRouter(func(router *chi.Mux) {
@@ -71,7 +71,6 @@ func main() {
 		router.HandleFunc("/ui", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/ui/", http.StatusFound)
 		})
-
 	})
 	srv.StartServer()
 }

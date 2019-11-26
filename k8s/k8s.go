@@ -127,7 +127,6 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 }
 
 func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
-
 	services, err := a.clientset.CoreV1().Services(a.ns).List(metav1.ListOptions{
 		LabelSelector: labelSelector,
 	})
@@ -161,6 +160,7 @@ func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 		if len(srv.Spec.Ports) > 0 {
 			ni.portName = srv.Spec.Ports[0].Name
 		}
+
 		nodesInfo[srvName] = ni
 	}
 	return nodesInfo, nil
