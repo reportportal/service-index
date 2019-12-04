@@ -13,7 +13,7 @@ podTemplate(
                 containerTemplate(name: 'golang', image: 'golang:1.12.7', ttyEnabled: true, command: 'cat'),
 
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
-                containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v2.14.2', command: 'cat', ttyEnabled: true),
+                containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v3.0.0', command: 'cat', ttyEnabled: true),
                 // containerTemplate(name: 'yq', image: 'mikefarah/yq', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true)
 //                containerTemplate(name: 'postman', image: 'postman/newman:alpine', command: 'cat', ttyEnabled: true)
@@ -55,11 +55,6 @@ podTemplate(
                 dir(ciDir) {
                     git credentialsId: 'epm-gitlab-key', branch: "master", url: 'git@git.epam.com:epmc-tst/reportportal-ci.git'
                 }
-
-//                dir(testsDir) {
-//                    git credentialsId: 'epm-gitlab-key', branch: "master", url: 'git@git.epam.com:epm-rpp/tests.git'
-//                }
-
             }
         }, 'Checkout Service': {
             stage('Checkout Service') {
@@ -106,14 +101,14 @@ podTemplate(
                 dir(k8sChartDir) {
                     sh 'helm dependency update'
                 }
-                sh "helm upgrade --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f $ciDir/rp/values-ci.yml reportportal ./$k8sChartDir"
+                sh "helm upgrade -n reportportal --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f $ciDir/rp/values-ci.yml reportportal ./$k8sChartDir"
             }
         }
 
         stage('DVT Test') {
             def srvUrl
             container('kubectl') {
-                srvUrl = utils.getServiceEndpoint("reportportal", "index-0")
+                srvUrl = utils.getServiceEndpoint("reportportal", "reportportal-index")
             }
             if (srvUrl == null) {
                 error("Unable to retrieve service URL")
