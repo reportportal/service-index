@@ -101,7 +101,7 @@ podTemplate(
                 dir(k8sChartDir) {
                     sh 'helm dependency update'
                 }
-                sh "helm upgrade -n reportportal --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait -f $ciDir/rp/values-ci.yml reportportal ./$k8sChartDir"
+                sh "helm upgrade -n reportportal --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait reportportal ./$k8sChartDir"
             }
         }
 
