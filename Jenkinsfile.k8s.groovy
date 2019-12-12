@@ -26,10 +26,6 @@ podTemplate(
 ) {
 
     node("${label}") {
-        def srvRepo = "quay.io/reportportal/service-index"
-        def srvVersion = "BUILD-${env.BUILD_NUMBER}"
-        def tag = "$srvRepo:$srvVersion"
-
         /**
          * General ReportPortal Kubernetes Configuration and Helm Chart
          */
@@ -73,6 +69,11 @@ podTemplate(
 
 
         utils.scheduleRepoPoll()
+
+        majorVersion = util.execStdout('cat VERSION')
+        def srvRepo = "quay.io/reportportal/service-index"
+        def srvVersion = "$majorVersion-BUILD-${env.BUILD_NUMBER}"
+        def tag = "$srvRepo:$srvVersion"
 
         dir('app') {
             container('golang') {
