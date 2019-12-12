@@ -70,7 +70,7 @@ podTemplate(
 
         utils.scheduleRepoPoll()
 
-        majorVersion = util.execStdout('cat VERSION')
+        majorVersion = utils.execStdout('cat VERSION')
         def srvRepo = "quay.io/reportportal/service-index"
         def srvVersion = "$majorVersion-BUILD-${env.BUILD_NUMBER}"
         def tag = "$srvRepo:$srvVersion"
