@@ -139,6 +139,20 @@ podTemplate(
             }
         }
 
+        // Add to the service-ui ci pipeline DAST step:
+        def dastJobName = 'reportportal_dast'
+        stage('Run DAST') {
+            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                println("Triggering build of SAST job: ${dastJobName}...")
+                build job: dastJobName,
+                        parameters: [
+                                string(name: "CONFIG", value: "carrier/config.yaml"),
+                                string(name: "SUITE", value: "rpportal_dev_dast"),
+                                booleanParam(name: "DEBUG", defaultValue: false)
+                        ],
+                        propagate:false, wait:false // true or false: Wait for job finish
+            }
+        }
 //        stage('Smoke Tests') {
 //            def srvUrl
 //            dir (testsDir) {
