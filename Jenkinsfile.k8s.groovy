@@ -79,6 +79,22 @@ podTemplate(
         def srvVersion = "$majorVersion-BUILD-${env.BUILD_NUMBER}"
         def tag = "$srvRepo:$srvVersion"
 
+
+        // Add to the main CI pipelines SAST step:
+        def sastJobName = 'reportportal_services_sast'
+        stage('Run SAST') {
+            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                println("Triggering build of SAST job: ${sastJobName}...")
+                build job: sastJobName,
+                        parameters: [
+                                string(name: 'CONFIG', value: 'carrier/config.yaml'),
+                                string(name: 'SUITE', value: env.JOB_NAME),
+                                booleanParam(name: 'DEBUG', value: false)
+                        ],
+                        propagate: false, wait: false // true or false: Wait for job finish
+            }
+        }
+
         dir('app') {
             container('golang') {
                 stage('Build') {
