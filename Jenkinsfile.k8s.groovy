@@ -117,7 +117,7 @@ podTemplate(
             //     sh "yq m -x $k8sChartDir/values.yaml $ciDir/rp/values-ci.yml > $valsFile"
             // }
 
-            helm.deploy("./$k8sChartDir", ["serviceindex.repository": srvRepo, "serviceindex.tag": srvVersion], false) // no wait
+            helm.deploy("./$k8sChartDir", ["serviceindex.repository": srvRepo, "serviceindex.tag": srvVersion], true) // with wait
         }
 
         stage('DVT Test') {
