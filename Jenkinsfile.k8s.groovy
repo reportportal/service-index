@@ -117,12 +117,7 @@ podTemplate(
             //     sh "yq m -x $k8sChartDir/values.yaml $ciDir/rp/values-ci.yml > $valsFile"
             // }
 
-            container('helm') {
-//                dir(k8sChartDir) {
-//                    sh 'helm dependency update'
-                helm.deploy("./$k8sChartDir", ["serviceindex.repository": $srvRepo, "serviceindex.tag": $srvVersion])
-//                }
-            }
+            helm.deploy("./$k8sChartDir", ["serviceindex.repository": srvRepo, "serviceindex.tag": srvVersion], false) // no wait
         }
 
         stage('DVT Test') {
@@ -134,7 +129,7 @@ podTemplate(
                 error("Unable to retrieve service URL")
             }
             container('httpie') {
-                test.checkVersion("http://$srvUrl", "$srvVersion")
+                test.checkVersion("http://$srvUrl", "$srvVersion", 30, 10) // 30 attempts with 10 seconds timeout
             }
         }
 
