@@ -16,7 +16,6 @@ podTemplate(
                 containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v3.0.2', command: 'cat', ttyEnabled: true),
                 // containerTemplate(name: 'yq', image: 'mikefarah/yq', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true)
-//                containerTemplate(name: 'postman', image: 'postman/newman:alpine', command: 'cat', ttyEnabled: true)
         ],
         volumes: [
                 hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
@@ -119,10 +118,10 @@ podTemplate(
             // }
 
             container('helm') {
-                dir(k8sChartDir) {
-                    sh 'helm dependency update'
-                }
-                sh "helm upgrade -n reportportal --reuse-values --set serviceindex.repository=$srvRepo --set serviceindex.tag=$srvVersion --wait reportportal ./$k8sChartDir"
+//                dir(k8sChartDir) {
+//                    sh 'helm dependency update'
+                helm.deploy("./$k8sChartDir", ["serviceindex.repository": $srvRepo, "serviceindex.tag": $srvVersion])
+//                }
             }
         }
 
@@ -150,7 +149,7 @@ podTemplate(
                                 string(name: "SUITE", value: "rpportal_dev_dast"),
                                 booleanParam(name: "DEBUG", defaultValue: false)
                         ],
-                        propagate:false, wait:false // true or false: Wait for job finish
+                        propagate: false, wait: false // true or false: Wait for job finish
             }
         }
 //        stage('Smoke Tests') {
