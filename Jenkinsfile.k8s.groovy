@@ -142,6 +142,7 @@ podTemplate(
                         parameters: [
                                 string(name: "CONFIG", value: "$ciDir/rp/carrier/config.yaml"),
                                 string(name: "SUITE", value: "rpportal_dev_dast"),
+                                string(name: "BASE_PATH", value: "$ciDir/rp"),
                                 booleanParam(name: "DEBUG", defaultValue: false)
                         ],
                         propagate: false, wait: false // true or false: Wait for job finish
