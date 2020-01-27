@@ -115,7 +115,7 @@ podTemplate(
         }
 
         stage('DVT Test') {
-            helm.testDeployment("reportportal", "service-index", "srvVersion", 30, 10)
+            helm.testDeployment("reportportal", "service-index", "$srvVersion", 30, 10)
         }
 
         // Add to the service-ui ci pipeline DAST step:
