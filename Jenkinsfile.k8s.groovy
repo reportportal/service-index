@@ -14,7 +14,6 @@ podTemplate(
 
                 containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v3.0.2', command: 'cat', ttyEnabled: true),
-                // containerTemplate(name: 'yq', image: 'mikefarah/yq', command: 'cat', ttyEnabled: true),
                 containerTemplate(name: 'httpie', image: 'blacktop/httpie', command: 'cat', ttyEnabled: true)
         ],
         volumes: [
@@ -127,20 +126,11 @@ podTemplate(
                         parameters: [
                                 string(name: "CONFIG", value: "$ciDir/rp/carrier/config.yaml"),
                                 string(name: "SUITE", value: "rpportal_dev_dast"),
-//                                string(name: "BASE_PATH", value: "$ciDir/rp"),
                                 booleanParam(name: "DEBUG", defaultValue: false)
                         ],
                         propagate: false, wait: false // true or false: Wait for job finish
             }
         }
-//        stage('Smoke Tests') {
-//            def srvUrl
-//            dir (testsDir) {
-//                container('postman') {
-//                    sh "newman run postman/service-api.postman_collection.json --env-var rp_url=https://rp.avarabyeu.me av.postman_environment.json -r cli,junit"
-//                }
-//            }
-//        }
 
     }
 }
