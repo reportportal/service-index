@@ -58,7 +58,6 @@ podTemplate(
                 }
             }
         }
-        def test = load "${ciDir}/jenkins/scripts/test.groovy"
         def utils = load "${ciDir}/jenkins/scripts/util.groovy"
         def helm = load "${ciDir}/jenkins/scripts/helm.groovy"
         def docker = load "${ciDir}/jenkins/scripts/docker.groovy"
@@ -112,11 +111,6 @@ podTemplate(
         }
 
         stage('Deploy to Dev') {
-            // def valsFile = "merged.yml"
-            // container('yq') {
-            //     sh "yq m -x $k8sChartDir/values.yaml $ciDir/rp/values-ci.yml > $valsFile"
-            // }
-
             helm.deploy("./$k8sChartDir", ["serviceindex.repository": srvRepo, "serviceindex.tag": srvVersion], false) // with wait
         }
 
