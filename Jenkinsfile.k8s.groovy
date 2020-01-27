@@ -117,20 +117,11 @@ podTemplate(
             //     sh "yq m -x $k8sChartDir/values.yaml $ciDir/rp/values-ci.yml > $valsFile"
             // }
 
-            helm.deploy("./$k8sChartDir", ["serviceindex.repository": srvRepo, "serviceindex.tag": srvVersion], true) // with wait
+            helm.deploy("./$k8sChartDir", ["serviceindex.repository": srvRepo, "serviceindex.tag": srvVersion], false) // with wait
         }
 
         stage('DVT Test') {
-            def srvUrl
-            container('kubectl') {
-                srvUrl = utils.getServiceEndpoint("reportportal", "reportportal-index")
-            }
-            if (srvUrl == null) {
-                error("Unable to retrieve service URL")
-            }
-            container('httpie') {
-                test.checkVersion("http://$srvUrl", "$srvVersion", 30, 10) // 30 attempts with 10 seconds timeout
-            }
+            helm.testDeployment("reportportal", "service-index", "srvVersion", 30, 10)
         }
 
         // Add to the service-ui ci pipeline DAST step:
