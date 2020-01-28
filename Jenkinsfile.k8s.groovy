@@ -124,7 +124,7 @@ podTemplate(
                 println("Triggering build of SAST job: ${dastJobName}...")
                 build job: dastJobName,
                         parameters: [
-                                string(name: "CONFIG", value: "$ciDir/rp/carrier/config.yaml"),
+                                string(name: "CONFIG", value: "rp/carrier/config.yaml"),
                                 string(name: "SUITE", value: "rpportal_dev_dast"),
                                 booleanParam(name: "DEBUG", defaultValue: false)
                         ],
