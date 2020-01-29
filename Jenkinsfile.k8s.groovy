@@ -84,7 +84,7 @@ podTemplate(
                 println("Triggering build of SAST job: ${sastJobName}...")
                 build job: sastJobName,
                         parameters: [
-                                string(name: 'CONFIG', value: 'carrier/config.yaml'),
+                                string(name: 'CONFIG', value: 'rp/carrier/config.yaml'),
                                 string(name: 'SUITE', value: env.JOB_NAME),
                                 booleanParam(name: 'DEBUG', value: false)
                         ],
