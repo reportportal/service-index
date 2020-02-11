@@ -5,9 +5,8 @@ node {
     load "$JENKINS_HOME/jobvars.env"
 
     dir('src/github.com/reportportal/service-index') {
-        withEnv(["GOPATH=${JENKINS_HOME}/workspace/${JOB_NAME}", "BINTRAY_TOKEN=${BINTRAY_TOKEN}"]) {
+        withEnv(["GOPATH=${JENKINS_HOME}/workspace/${JOB_NAME}", "BINTRAY_TOKEN=${BINTRAY_TOKEN}", "GO111MODULE=on"]) {
             env.PATH="${GOPATH}/bin:$PATH"
-            env.GO111MODULE="on"
 
             stage('Checkout') {
                 checkout scm
