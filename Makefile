@@ -47,7 +47,7 @@ build:
 
 
 # Builds server
-build-release: checkstyle test
+build-release: test checkstyle
 	$(eval v := $(shell releaser bump))
 	CGO_ENABLED=0 GOARCH=amd64 GOOS=linux $(GO) build ${BUILD_INFO_LDFLAGS} -o ${RELEASE_DIR}/service-index_linux_amd64 ./
 	CGO_ENABLED=0 GOARCH=amd64 GOOS=windows $(GO) build ${BUILD_INFO_LDFLAGS} -o ${RELEASE_DIR}/service-index_win_amd64.exe ./
