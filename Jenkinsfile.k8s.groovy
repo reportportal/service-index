@@ -1,4 +1,5 @@
 #!groovy
+@Library('commons') _
 
 //String podTemplateConcat = "${serviceName}-${buildNumber}-${uuid}"
 def label = "worker-${env.JOB_NAME}-${UUID.randomUUID().toString()}"
@@ -57,40 +58,21 @@ podTemplate(
                 }
             }
         }
-        def utils = load "${ciDir}/jenkins/scripts/util.groovy"
-        def helm = load "${ciDir}/jenkins/scripts/helm.groovy"
-        def docker = load "${ciDir}/jenkins/scripts/docker.groovy"
 
-        docker.init()
+        dockerUtil.init()
         helm.init()
-
-
-        utils.scheduleRepoPoll()
+        util.scheduleRepoPoll()
 
         def majorVersion;
         dir('app') {
-            majorVersion = utils.execStdout('cat VERSION')
+            majorVersion = util.execStdout('cat VERSION')
         }
 
         def srvRepo = "quay.io/reportportal/service-index"
         def srvVersion = "$majorVersion-BUILD-${env.BUILD_NUMBER}"
         def tag = "$srvRepo:$srvVersion"
 
-
-        // Add to the main CI pipelines SAST step:
-        def sastJobName = 'reportportal_services_sast'
-        stage('Run SAST') {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                println("Triggering build of SAST job: ${sastJobName}...")
-                build job: sastJobName,
-                        parameters: [
-                                string(name: 'CONFIG', value: 'rp/carrier/config.yaml'),
-                                string(name: 'SUITE', value: env.JOB_NAME),
-                                booleanParam(name: 'DEBUG', value: false)
-                        ],
-                        propagate: false, wait: false // true or false: Wait for job finish
-            }
-        }
+        sast('reportportal_services_sast', 'rp/carrier/config.yaml', 'service-index', false)
 
         dir('app') {
             container('golang') {
@@ -117,21 +99,6 @@ podTemplate(
             helm.testDeployment("reportportal", "reportportal-index", "$srvVersion", 30, 10)
         }
 
-        // Add to the service-ui ci pipeline DAST step:
-        def dastJobName = 'reportportal_dast'
-        stage('Run DAST') {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                println("Triggering build of SAST job: ${dastJobName}...")
-                build job: dastJobName,
-                        parameters: [
-                                string(name: "CONFIG", value: "rp/carrier/config.yaml"),
-                                string(name: "SUITE", value: "rpportal_dev_dast"),
-                                booleanParam(name: "DEBUG", defaultValue: false)
-                        ],
-                        propagate: false, wait: false // true or false: Wait for job finish
-            }
-        }
-
+        dast('reportportal_dast', 'rp/carrier/config.yaml', 'rpportal_dev_dast', false)
     }
 }
-
