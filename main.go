@@ -9,10 +9,11 @@ import (
 	"github.com/reportportal/commons-go/commons"
 	"github.com/reportportal/commons-go/conf"
 	"github.com/reportportal/commons-go/server"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/reportportal/service-index/aggregator"
 	"github.com/reportportal/service-index/k8s"
 	"github.com/reportportal/service-index/traefik"
-	log "github.com/sirupsen/logrus"
 )
 
 const httpClientTimeout = 5 * time.Second

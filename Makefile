@@ -38,7 +38,7 @@ checkstyle:
 
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
-	goimports -l -w ${GOFILES_NOVENDOR}
+	goimports -local "github.com/reportportal/service-index" -l -w ${GOFILES_NOVENDOR}
 
 # Builds server
 build:
