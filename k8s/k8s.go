@@ -21,6 +21,7 @@ import (
 
 const (
 	domainPattern = "%s.svc.%s"
+	//nolint:gosec
 	nsSecret      = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 	labelSelector = "app=reportportal"
 )
