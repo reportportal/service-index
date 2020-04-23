@@ -6,7 +6,6 @@ require (
 	github.com/avarabyeu/releaser v0.0.0-20170822143458-d7f1dd74c9f0 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/go-chi/chi v4.0.2+incompatible
-	github.com/golangci/golangci-lint v1.25.0 // indirect
 	github.com/juju/errgo v0.0.0-20140925100237-08cceb5d0b53 // indirect
 	github.com/mattn/go-runewidth v0.0.8 // indirect
 	github.com/pkg/errors v0.8.1
