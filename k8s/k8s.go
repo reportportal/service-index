@@ -8,6 +8,9 @@ import (
 	"io/ioutil"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"net"
+	"strings"
+
 	//all auth types are supported
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
@@ -17,7 +20,7 @@ import (
 )
 
 const (
-	domainPattern = "%s.svc.cluster.local"
+	domainPattern = "%s.svc.%s"
 	nsSecret      = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 	labelSelector = "app=reportportal"
 )
@@ -57,9 +60,11 @@ func NewAggregator(timeout time.Duration) (*Aggregator, error) {
 		log.Errorf("Unable to create k8s client: %v", err)
 		return nil, err
 	}
+
+	clusterDomain := getClusterDomain()
 	return &Aggregator{
 		clientset:   clientset,
-		localDomain: fmt.Sprintf(domainPattern, ns),
+		localDomain: fmt.Sprintf(domainPattern, ns, clusterDomain),
 		r: resty.NewWithClient(&http.Client{
 			Timeout: timeout,
 		}).SetScheme("http"),
@@ -71,8 +76,9 @@ func NewAggregator(timeout time.Duration) (*Aggregator, error) {
 func (a *Aggregator) AggregateHealth() map[string]interface{} {
 	return a.aggregate(func(ni *NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
-		_, e := a.r.R().SetSRV(&resty.SRVRecord{Service: ni.srv, Domain: ni.srv}).SetResult(&rs).SetError(&rs).Get(ni.healthEndpoint)
+		_, e := a.r.R().SetSRV(&resty.SRVRecord{Service: ni.portName, Domain: ni.srv}).SetResult(&rs).SetError(&rs).Get(ni.healthEndpoint)
 		if nil != e {
+			log.Errorf("Health check error for service [%s] failed: %s", ni.srv, e.Error())
 			rs = map[string]interface{}{"status": "DOWN"}
 		}
 
@@ -135,7 +141,7 @@ func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 	}
 
 	srvCount := len(services.Items)
-	log.Infof("Selected %d ReportPortal's services", srvCount)
+	log.Infof("Selected [%d] ReportPortal's services", srvCount)
 	nodesInfo := make(map[string]*NodeInfo, srvCount)
 	for _, srv := range services.Items {
 		log.Debugf("Info found for service %s", srv.GetName())
@@ -172,4 +178,21 @@ func getCurrentNamespace() (string, error) {
 		return "", err
 	}
 	return string(ns), nil
+}
+
+// GetClusterDomain returns Kubernetes cluster domain, default to "cluster.local"
+func getClusterDomain() string {
+	apiSvc := "kubernetes.default.svc"
+
+	clusterDomain := "cluster.local"
+
+	cname, err := net.LookupCNAME(apiSvc)
+	if err != nil {
+		return clusterDomain
+	}
+
+	clusterDomain = strings.TrimPrefix(cname, apiSvc)
+	clusterDomain = strings.Trim(clusterDomain, ".")
+	log.Infof("Cluster Domain [%s] Detected", clusterDomain)
+	return clusterDomain
 }
