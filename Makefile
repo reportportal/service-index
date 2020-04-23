@@ -28,7 +28,7 @@ get-build-deps:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(shell go env GOPATH)/bin" v1.21.0
 	$(GO) get $(BUILD_DEPS)
 
-test: vendor
+test:
 	ls -la
 	$(GO) test ${GODIRS_NOVENDOR}
 
@@ -38,7 +38,7 @@ checkstyle:
 
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
-
+	goimports -l -w ${GOFILES_NOVENDOR}
 
 # Builds server
 build:

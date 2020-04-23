@@ -1,6 +1,9 @@
 package main
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/reportportal/commons-go/commons"
@@ -10,8 +13,6 @@ import (
 	"github.com/reportportal/service-index/k8s"
 	"github.com/reportportal/service-index/traefik"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"time"
 )
 
 const httpClientTimeout = 5 * time.Second

@@ -2,22 +2,26 @@ package k8s
 
 import (
 	"fmt"
+	"io/ioutil"
+
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/resty.v1"
-	"io/ioutil"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	//all auth types are supported
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"k8s.io/client-go/rest"
+
 	"net/http"
 	"sync"
 	"time"
+
+	//all auth types are supported
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/client-go/rest"
 )
 
 const (
 	domainPattern = "%s.svc.cluster.local"
+	//nolint:gosec
 	nsSecret      = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 	labelSelector = "app=reportportal"
 )

@@ -2,13 +2,14 @@ package traefik
 
 import (
 	"errors"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/resty.v1"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/resty.v1"
 )
 
 const traefikV1ProvidersURL = "/api/providers/docker"
@@ -85,7 +86,7 @@ func NewAggregator(traefikURL string, traefikV2 bool, timeout time.Duration) *Ag
 func (a *Aggregator) AggregateHealth() map[string]interface{} {
 	return a.aggregate(func(ni *NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
-		if "" != ni.GetHealthEndpoint() {
+		if ni.GetHealthEndpoint() != "" {
 			_, e := a.r.R().SetResult(&rs).SetError(&rs).Get(ni.GetHealthEndpoint())
 			if nil != e {
 				rs = map[string]interface{}{"status": "DOWN"}
