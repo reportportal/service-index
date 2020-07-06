@@ -12,48 +12,55 @@ import (
 	"gopkg.in/resty.v1"
 )
 
-const traefikV1ProvidersURL = "/api/providers/docker"
-const traefikV2ServicesURL = "/api/http/services"
+const (
+	traefikV1ProvidersURL = "/api/providers/docker"
+	traefikV2ServicesURL  = "/api/http/services"
+)
 
-//Providers represents traefik response model
+var (
+	errEmptyResponse = errors.New("response is empty")
+	errGetHealthErr  = errors.New("unable to update health info")
+)
+
+// Providers represents traefik response model
 type Providers struct {
 	Docker *Provider `json:"docker,omitempty"`
 }
 
-//Provider represents traefik response model
+// Provider represents traefik response model
 type Provider struct {
 	Backends map[string]*Backend `json:"backends,omitempty"`
 }
 
-//Backend represents traefik response model
+// Backend represents traefik response model
 type Backend struct {
 	Servers map[string]*Server `json:"servers,omitempty"`
 }
 
-//Server represents traefik response model
+// Server represents traefik response model
 type Server struct {
 	URL    string `json:"url"`
 	Weight int    `json:"weight"`
 }
 
-//Aggregator represents traefik response model
+// Aggregator represents traefik response model
 type Aggregator struct {
 	r          *resty.Client
 	traefikURL string
 	v2         bool
 }
 
-//NodeInfo embeds node-related information
+// NodeInfo embeds node-related information
 type NodeInfo struct {
 	URL string
 }
 
-//GetInfoEndpoint returns info endpoint URL
+// GetInfoEndpoint returns info endpoint URL
 func (ni *NodeInfo) GetInfoEndpoint() string {
 	return ni.URL + "/info"
 }
 
-//GetHealthEndpoint returns health check URL
+// GetHealthEndpoint returns health check URL
 func (ni *NodeInfo) GetHealthEndpoint() string {
 	return ni.URL + "/health"
 }
@@ -65,13 +72,13 @@ func (ni *NodeInfo) buildURL(h, path string) string {
 		log.Error(err)
 		return ""
 	}
-	//u.Host = h
+	// u.Host = h
 	u.Path = path
 
 	return u.String()
 }
 
-//NewAggregator creates new traefik aggregator
+// NewAggregator creates new traefik aggregator
 func NewAggregator(traefikURL string, traefikV2 bool, timeout time.Duration) *Aggregator {
 	return &Aggregator{
 		r: resty.NewWithClient(&http.Client{
@@ -82,7 +89,7 @@ func NewAggregator(traefikURL string, traefikV2 bool, timeout time.Duration) *Ag
 	}
 }
 
-//AggregateHealth aggregates health info
+// AggregateHealth aggregates health info
 func (a *Aggregator) AggregateHealth() map[string]interface{} {
 	return a.aggregate(func(ni *NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
@@ -99,7 +106,7 @@ func (a *Aggregator) AggregateHealth() map[string]interface{} {
 	})
 }
 
-//AggregateInfo aggregates info
+// AggregateInfo aggregates info
 func (a *Aggregator) AggregateInfo() map[string]interface{} {
 	return a.aggregate(func(info *NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
@@ -110,7 +117,7 @@ func (a *Aggregator) AggregateInfo() map[string]interface{} {
 		}
 		if nil == rs {
 			log.Error("Unable to collect info endpoint response")
-			return nil, errors.New("response is empty")
+			return nil, errEmptyResponse
 		}
 		return rs, nil
 	})
@@ -130,7 +137,7 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 	}
 
 	nodeLen := len(nodesInfo)
-	var aggregated = make(map[string]interface{}, nodeLen)
+	aggregated := make(map[string]interface{}, nodeLen)
 	var wg sync.WaitGroup
 
 	wg.Add(nodeLen)
@@ -166,6 +173,7 @@ func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 
 	return nodesInfo, nil
 }
+
 func (a *Aggregator) getNodesInfoV2() (map[string]*NodeInfo, error) {
 	var serviceInfo []*serviceRepresentation
 	rs, err := a.r.R().SetResult(&serviceInfo).Get(a.traefikURL + traefikV2ServicesURL)
@@ -173,7 +181,7 @@ func (a *Aggregator) getNodesInfoV2() (map[string]*NodeInfo, error) {
 		return nil, err
 	}
 	if rs.StatusCode() != http.StatusOK {
-		return nil, errors.New("unable to update health info")
+		return nil, errGetHealthErr
 	}
 
 	nodesInfo := make(map[string]*NodeInfo, len(serviceInfo))

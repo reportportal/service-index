@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net"
+	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -12,11 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	"net/http"
-	"sync"
-	"time"
-
-	//all auth types are supported
+	// all auth types are supported
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
 )
@@ -28,7 +27,7 @@ const (
 	labelSelector = "app=reportportal"
 )
 
-//Aggregator is an info/health aggregator implementation for k8s
+// Aggregator is an info/health aggregator implementation for k8s
 type Aggregator struct {
 	localDomain string
 	ns          string
@@ -36,7 +35,7 @@ type Aggregator struct {
 	r           *resty.Client
 }
 
-//NodeInfo embeds node-related information
+// NodeInfo embeds node-related information
 type NodeInfo struct {
 	srv            string
 	portName       string
@@ -44,7 +43,7 @@ type NodeInfo struct {
 	healthEndpoint string
 }
 
-//NewAggregator creates new k8s aggregator
+// NewAggregator creates new k8s aggregator
 func NewAggregator(timeout time.Duration) (*Aggregator, error) {
 	ns, err := getCurrentNamespace()
 	if err != nil {
@@ -58,7 +57,6 @@ func NewAggregator(timeout time.Duration) (*Aggregator, error) {
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
-
 	if err != nil {
 		log.Errorf("Unable to create k8s client: %v", err)
 		return nil, err
@@ -75,7 +73,7 @@ func NewAggregator(timeout time.Duration) (*Aggregator, error) {
 	}, nil
 }
 
-//AggregateHealth aggregates health info
+// AggregateHealth aggregates health info
 func (a *Aggregator) AggregateHealth() map[string]interface{} {
 	return a.aggregate(func(ni *NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
@@ -89,7 +87,7 @@ func (a *Aggregator) AggregateHealth() map[string]interface{} {
 	})
 }
 
-//AggregateInfo aggregates info
+// AggregateInfo aggregates info
 func (a *Aggregator) AggregateInfo() map[string]interface{} {
 	return a.aggregate(func(ni *NodeInfo) (interface{}, error) {
 		var rs map[string]interface{}
@@ -115,7 +113,7 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 	}
 
 	nodeLen := len(nodesInfo)
-	var aggregated = make(map[string]interface{}, nodeLen)
+	aggregated := make(map[string]interface{}, nodeLen)
 	var wg sync.WaitGroup
 
 	wg.Add(nodeLen)
@@ -149,7 +147,7 @@ func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 	for _, srv := range services.Items {
 		log.Debugf("Info found for service %s", srv.GetName())
 
-		var srvName = srv.GetAnnotations()["service"]
+		srvName := srv.GetAnnotations()["service"]
 		if srvName == "" {
 			continue
 		}

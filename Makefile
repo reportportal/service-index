@@ -25,7 +25,7 @@ help:
 	@echo "checkstyle - gofmt+golint+misspell"
 
 get-build-deps:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(shell go env GOPATH)/bin" v1.25.1
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(shell go env GOPATH)/bin" v1.28.0
 	$(GO) get $(BUILD_DEPS)
 
 test:
@@ -39,6 +39,7 @@ checkstyle:
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
 	goimports -local "github.com/reportportal/service-index" -l -w ${GOFILES_NOVENDOR}
+	gofumpt -l -w -s ${GOFILES_NOVENDOR}
 
 # Builds server
 build:
