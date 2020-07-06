@@ -13,7 +13,7 @@ node {
         docker.withServer("$DOCKER_HOST") {
             stage('Build Docker Image') {
                 withEnv(["AWS_URI=${AWS_URI}", "VERSION=${VERSION}"]) {
-                    sh "make IMAGE_NAME_DEV=${AWS_URI}/service-index build-image-dev v=${VERSION}-RC-${env.BUILD_NUMBER}"
+                    sh "make IMAGE_NAME=${AWS_URI}/service-index build-image v=${VERSION}-RC-${env.BUILD_NUMBER}"
                 }
             }
             stage('Push to ECR') {
