@@ -109,7 +109,7 @@ func (a *Aggregator) AggregateHealth() map[string]interface{} {
 // AggregateInfo aggregates info
 func (a *Aggregator) AggregateInfo() map[string]interface{} {
 	return a.aggregate(func(info *NodeInfo) (interface{}, error) {
-		var rs map[string]interface{}
+		var rs *map[string]interface{}
 		_, e := a.r.R().SetResult(&rs).Get(info.GetInfoEndpoint())
 		if nil != e {
 			log.Errorf("Unable to aggregate info: %v", e)
@@ -187,8 +187,10 @@ func (a *Aggregator) getNodesInfoV2() (map[string]*NodeInfo, error) {
 	nodesInfo := make(map[string]*NodeInfo, len(serviceInfo))
 
 	for _, b := range serviceInfo {
-		backName := b.Name[:strings.LastIndex(b.Name, "@")]
-		nodesInfo[backName] = &NodeInfo{URL: b.LoadBalancer.Servers[0].URL}
+		if b.LoadBalancer != nil {
+			backName := b.Name[:strings.LastIndex(b.Name, "@")]
+			nodesInfo[backName] = &NodeInfo{URL: b.LoadBalancer.Servers[0].URL}
+		}
 	}
 
 	return nodesInfo, nil
