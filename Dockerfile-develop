@@ -3,14 +3,14 @@ FROM golang:1.15.7-alpine
 RUN apk --no-cache add build-base git
 
 WORKDIR /go/src/github.com/reportportal/service-index/
-ARG version
 
 ENV GO111MODULE=on
 
 ## Copy makefile and glide before to be able to cache vendor
-COPY Makefile ./
-RUN go mod download
+COPY Makefile go.mod go.sum ./
+RUN make get-build-deps
 
+ARG version
 ENV VERSION=$version
 
 COPY ./ ./

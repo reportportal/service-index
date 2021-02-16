@@ -1,6 +1,6 @@
 module github.com/reportportal/service-index
 
-go 1.12
+go 1.17
 
 require (
 	github.com/go-chi/chi v4.1.2+incompatible
