@@ -1,4 +1,4 @@
-FROM golang:1.14.2-alpine
+FROM golang:1.15.7-alpine
 
 RUN apk --no-cache add build-base git
 
@@ -9,6 +9,7 @@ ENV GO111MODULE=on
 
 ## Copy makefile and glide before to be able to cache vendor
 COPY Makefile ./
+RUN go mod download
 
 ENV VERSION=$version
 

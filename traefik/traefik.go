@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/resty.v1"
 )
 
 const (

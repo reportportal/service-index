@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/resty.v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
