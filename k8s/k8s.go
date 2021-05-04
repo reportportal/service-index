@@ -53,16 +53,18 @@ func NewAggregator(timeout time.Duration) (*Aggregator, error) {
 	log.Infof("Namespace: %s", ns)
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get cluster config: %w", err)
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		log.Errorf("Unable to create k8s client: %v", err)
-		return nil, err
+
+		return nil, fmt.Errorf("unable to create k8s client: %w", err)
 	}
 
 	clusterDomain := getClusterDomain()
+
 	return &Aggregator{
 		clientset:   clientset,
 		localDomain: fmt.Sprintf(domainPattern, ns, clusterDomain),
@@ -94,12 +96,15 @@ func (a *Aggregator) AggregateInfo() map[string]interface{} {
 		_, e := a.r.R().SetSRV(&resty.SRVRecord{Service: ni.portName, Domain: ni.srv}).SetResult(&rs).Get(ni.infoEndpoint)
 		if nil != e {
 			log.Errorf("Unable to aggregate info: %v", e)
-			return nil, e
+
+			return nil, fmt.Errorf("unable to aggregate info: %w", e)
 		}
 		if nil == rs {
 			log.Error("Unable to collect info endpoint response")
+
 			return nil, errors.New("response is empty")
 		}
+
 		return rs, nil
 	})
 }
@@ -109,6 +114,7 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 	nodesInfo, err := a.getNodesInfo()
 	if err != nil {
 		log.Errorf("Unable to aggregate node information: %v", err)
+
 		return map[string]interface{}{}
 	}
 
@@ -130,6 +136,7 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 		}(node, info)
 	}
 	wg.Wait()
+
 	return aggregated
 }
 
@@ -138,7 +145,7 @@ func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 		LabelSelector: labelSelector,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to aggregate nodes info: %w", err)
 	}
 
 	srvCount := len(services.Items)
@@ -170,14 +177,16 @@ func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 
 		nodesInfo[srvName] = ni
 	}
+
 	return nodesInfo, nil
 }
 
 func getCurrentNamespace() (string, error) {
 	ns, err := ioutil.ReadFile(nsSecret)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to read namespace secret file: %w", err)
 	}
+
 	return string(ns), nil
 }
 
@@ -195,5 +204,6 @@ func getClusterDomain() string {
 	clusterDomain = strings.TrimPrefix(cname, apiSvc)
 	clusterDomain = strings.Trim(clusterDomain, ".")
 	log.Infof("Cluster Domain [%s] Detected", clusterDomain)
+
 	return clusterDomain
 }

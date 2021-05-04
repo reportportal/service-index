@@ -2,6 +2,7 @@ package traefik
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -70,6 +71,7 @@ func (ni *NodeInfo) buildURL(h, path string) string {
 	u, err := url.Parse(h)
 	if nil != err {
 		log.Error(err)
+
 		return ""
 	}
 	// u.Host = h
@@ -113,12 +115,15 @@ func (a *Aggregator) AggregateInfo() map[string]interface{} {
 		_, e := a.r.R().SetResult(&rs).Get(info.GetInfoEndpoint())
 		if nil != e {
 			log.Errorf("Unable to aggregate info: %v", e)
-			return nil, e
+
+			return nil, fmt.Errorf("unable to aggregate nodes info: %w", e)
 		}
 		if nil == rs {
 			log.Error("Unable to collect info endpoint response")
+
 			return nil, errEmptyResponse
 		}
+
 		return rs, nil
 	})
 }
@@ -154,6 +159,7 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 		}(node, info)
 	}
 	wg.Wait()
+
 	return aggregated
 }
 
@@ -161,7 +167,7 @@ func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 	var provider Provider
 	_, err := a.r.R().SetResult(&provider).Get(a.traefikURL + traefikV1ProvidersURL)
 	if nil != err {
-		return nil, err
+		return nil, fmt.Errorf("unable to GET Traefik providers: %w", err)
 	}
 
 	nodesInfo := make(map[string]*NodeInfo, len(provider.Backends))
@@ -178,7 +184,7 @@ func (a *Aggregator) getNodesInfoV2() (map[string]*NodeInfo, error) {
 	var serviceInfo []*serviceRepresentation
 	rs, err := a.r.R().SetResult(&serviceInfo).Get(a.traefikURL + traefikV2ServicesURL)
 	if nil != err {
-		return nil, err
+		return nil, fmt.Errorf("unable to GET Traefik services info: %w", err)
 	}
 	if rs.StatusCode() != http.StatusOK {
 		return nil, errGetHealthErr
@@ -198,6 +204,7 @@ func getFirstNode(m map[string]*Server) *Server {
 	for _, v := range m {
 		return v
 	}
+
 	return nil
 }
 
