@@ -16,7 +16,6 @@ on:
       - develop
 
 env:
-  UI_BUILD_REACT: 'app/'
   GODIRS_NOVENDOR: '`go list ./... | grep -v /vendor/`'
   PACKAGE_COMMONS: 'github.com/reportportal/commons-go/v5'
   BINARY_DIR: 'bin'
