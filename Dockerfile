@@ -1,10 +1,9 @@
 FROM alpine:3.11
 
 LABEL maintainer="Andrei Varabyeu <andrei_varabyeu@epam.com>"
-LABEL version=5.0.10
+LABEL version=5.0.11
 
-ENV APP_DOWNLOAD_URL https://github.com/reportportal/service-index/releases/download/5.0.10/service-index_linux_amd64
-RUN apk --no-cache add --upgrade apk-tools
+ENV APP_DOWNLOAD_URL https://github.com/reportportal/service-index/releases/download/v5.0.11/service-index_linux_amd64
 
 ADD ${APP_DOWNLOAD_URL} /service-index
 
