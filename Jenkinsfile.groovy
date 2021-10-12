@@ -24,8 +24,6 @@ node {
                    stage('Push to ECR') {
                       withEnv(["AWS_URI=${AWS_URI}", "AWS_REGION=${AWS_REGION}"]) {
                              sh 'docker tag reportportal-dev/service-index ${AWS_URI}/service-index'
-                             sh 'docker tag reportportal-dev/service-index ${LOCAL_REGISTRY}/service-index'
-                             sh 'docker push ${LOCAL_REGISTRY}/service-index'
                              def image = env.AWS_URI + '/service-index'
                              def url = 'https://' + env.AWS_URI
                              def credentials = 'ecr:' + env.AWS_REGION + ':aws_credentials'
@@ -38,10 +36,9 @@ node {
                    
                 stage('Cleanup') {
                    docker.withServer("$DOCKER_HOST") {
-                       withEnv(["AWS_URI=${AWS_URI}", "LOCAL_REGISTRY=${LOCAL_REGISTRY}"]) {
+                       withEnv(["AWS_URI=${AWS_URI}"]) {
                                   sh 'docker rmi ${AWS_URI}/service-index:SNAPSHOT-${BUILD_NUMBER}'
                                   sh 'docker rmi ${AWS_URI}/service-index:latest'
-                                  sh 'docker rmi ${LOCAL_REGISTRY}/service-index:latest'
                               }
                        }
                 }
