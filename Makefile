@@ -47,7 +47,6 @@ build:
 	CGO_ENABLED=0 GOOS=linux $(GO) build ${BUILD_INFO_LDFLAGS} -o ${BINARY_DIR}/service-index ./
 #	CGO_ENABLED=0 $(GO) build ${BUILD_INFO_LDFLAGS} -o ${BINARY_DIR}/service-index ./
 
-
 # Builds server
 build-release: test checkstyle
 	$(eval v := $(shell releaser bump))
