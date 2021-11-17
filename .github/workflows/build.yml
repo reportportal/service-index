@@ -43,7 +43,11 @@ jobs:
         id: setup
         uses: actions/setup-go@v2
         with:
-          go-version: '^1.14.1'
+          go-version: '^1.15.7'
+
+      - name: Go Dependencies
+        id: dependencies
+        run: 'go mod download'
 
       - name: Go Linter
         id: linter
