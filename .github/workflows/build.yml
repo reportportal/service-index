@@ -47,7 +47,7 @@ jobs:
 
       - name: Go Dependencies
         id: dependencies
-        run: 'go mod download'
+        run: 'go mod init'
 
       - name: Go Linter
         id: linter
