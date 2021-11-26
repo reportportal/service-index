@@ -23,9 +23,10 @@ func main() {
 
 	rpCfg := struct {
 		*conf.ServerConfig
-		K8sMode       bool   `env:"K8S_MODE" envDefault:"false"`
-		TraefikV2Mode bool   `env:"TRAEFIK_V2_MODE" envDefault:"false"`
-		TraefikLbURL  string `env:"LB_URL" envDefault:"http://localhost:9091"`
+		K8sMode               bool   `env:"K8S_MODE" envDefault:"false"`
+		TraefikV2Mode         bool   `env:"TRAEFIK_V2_MODE" envDefault:"false"`
+		TraefikContainerBased bool   `env:"TRAEFIK_CONTAINER" envDefault:"true"`
+		TraefikLbURL          string `env:"LB_URL" envDefault:"http://localhost:8081"`
 	}{
 		ServerConfig: cfg,
 	}
@@ -48,7 +49,7 @@ func main() {
 			log.Fatalf("Incorrect K8S config %s", err.Error())
 		}
 	} else {
-		aggreg = traefik.NewAggregator(rpCfg.TraefikLbURL, rpCfg.TraefikV2Mode, httpClientTimeout)
+		aggreg = traefik.NewAggregator(rpCfg.TraefikLbURL, rpCfg.TraefikV2Mode, rpCfg.TraefikContainerBased, httpClientTimeout)
 	}
 
 	srv.WithRouter(func(router *chi.Mux) {
