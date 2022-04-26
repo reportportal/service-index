@@ -194,7 +194,9 @@ func (a *Aggregator) getNodesInfoV2() (map[string]*NodeInfo, error) {
 
 	for _, b := range serviceInfo {
 		backName := b.Name[:strings.LastIndex(b.Name, "@")]
-		nodesInfo[backName] = &NodeInfo{URL: b.LoadBalancer.Servers[0].URL}
+		if b.LoadBalancer != nil {
+			nodesInfo[backName] = &NodeInfo{URL: b.LoadBalancer.Servers[0].URL}
+		}
 	}
 
 	return nodesInfo, nil
