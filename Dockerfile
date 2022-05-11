@@ -1,4 +1,4 @@
-FROM alpine:3.11
+FROM alpine:3.15.4
 
 LABEL maintainer="Andrei Varabyeu <andrei_varabyeu@epam.com>"
 LABEL version=5.0.11
