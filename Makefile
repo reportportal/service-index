@@ -11,7 +11,7 @@ BUILD_DEPS:= github.com/avarabyeu/releaser
 GODIRS_NOVENDOR = $(shell go list ./... | grep -v /vendor/)
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 PWD = $(shell pwd)
-PACKAGE_COMMONS=github.com/reportportal/commons-go
+PACKAGE_COMMONS=github.com/reportportal/commons-go/v5
 REPO_NAME=reportportal/service-index
 
 BUILD_INFO_LDFLAGS=-ldflags "-extldflags '"-static"' -X ${PACKAGE_COMMONS}/commons.repo=${REPO_NAME} -X ${PACKAGE_COMMONS}/commons.branch=${COMMIT_HASH} -X ${PACKAGE_COMMONS}/commons.buildDate=${BUILD_DATE} -X ${PACKAGE_COMMONS}/commons.version=${v}"
@@ -36,10 +36,12 @@ test:
 checkstyle:
 	golangci-lint run --deadline 10m
 
+lint: checkstyle
+
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
 	goimports -local "github.com/reportportal/service-index" -l -w ${GOFILES_NOVENDOR}
-	gofumpt -l -w -s ${GOFILES_NOVENDOR}
+	gofumpt -l -w ${GOFILES_NOVENDOR}
 
 # Builds server
 build:

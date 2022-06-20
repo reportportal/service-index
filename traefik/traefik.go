@@ -20,7 +20,7 @@ const (
 
 var (
 	errEmptyResponse = errors.New("response is empty")
-	errGetHealthErr  = errors.New("unable to update health info")
+	errGetHealth     = errors.New("unable to update health info")
 )
 
 // Providers represents traefik response model
@@ -187,7 +187,7 @@ func (a *Aggregator) getNodesInfoV2() (map[string]*NodeInfo, error) {
 		return nil, fmt.Errorf("unable to GET Traefik services info: %w", err)
 	}
 	if rs.StatusCode() != http.StatusOK {
-		return nil, errGetHealthErr
+		return nil, errGetHealth
 	}
 
 	nodesInfo := make(map[string]*NodeInfo, len(serviceInfo))

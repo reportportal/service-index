@@ -42,13 +42,13 @@ jobs:
         id: setup
         uses: actions/setup-go@v2
         with:
-          go-version: '^1.14.1'
+          go-version: '^1.18.3'
 
       - name: Go Linter
         id: linter
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.36.0
+          version: v1.46.2
           skip-go-installation: true
           args: '--deadline 10m'
 
