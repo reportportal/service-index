@@ -36,10 +36,12 @@ test:
 checkstyle:
 	golangci-lint run --deadline 10m
 
+lint: checkstyle
+
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
 	goimports -local "github.com/reportportal/service-index" -l -w ${GOFILES_NOVENDOR}
-	gofumpt -l -w -s ${GOFILES_NOVENDOR}
+	gofumpt -l -w ${GOFILES_NOVENDOR}
 
 # Builds server
 build:
