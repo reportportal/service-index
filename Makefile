@@ -25,7 +25,7 @@ help:
 	@echo "checkstyle - gofmt+golint+misspell"
 
 get-build-deps:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(shell go env GOPATH)/bin" v1.28.0
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(shell go env GOPATH)/bin" v1.46.2
 	$(GO) get $(BUILD_DEPS)
 
 test:
