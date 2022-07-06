@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -141,9 +142,11 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 }
 
 func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
-	services, err := a.clientset.CoreV1().Services(a.ns).List(metav1.ListOptions{
-		LabelSelector: labelSelector,
-	})
+	services, err := a.clientset.CoreV1().Services(a.ns).List(
+		context.Background(),
+		metav1.ListOptions{
+			LabelSelector: labelSelector,
+		})
 	if err != nil {
 		return nil, fmt.Errorf("unable to aggregate nodes info: %w", err)
 	}
