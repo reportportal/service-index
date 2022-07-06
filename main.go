@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/reportportal/commons-go/commons"
-	"github.com/reportportal/commons-go/conf"
-	"github.com/reportportal/commons-go/server"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/reportportal/commons-go/v5/commons"
+	"github.com/reportportal/commons-go/v5/conf"
+	"github.com/reportportal/commons-go/v5/server"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/reportportal/service-index/aggregator"
