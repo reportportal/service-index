@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/pkg/errors v0.9.1
-	github.com/reportportal/commons-go/v5 v5.0.8
+	github.com/reportportal/commons-go/v5 v5.0.9
 	github.com/sirupsen/logrus v1.8.1
 	gopkg.in/resty.v1 v1.12.0
 	k8s.io/apimachinery v0.24.2
