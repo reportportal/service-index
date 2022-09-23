@@ -26,14 +26,20 @@ func main() {
 		K8sMode       bool   `env:"K8S_MODE" envDefault:"false"`
 		TraefikV2Mode bool   `env:"TRAEFIK_V2_MODE" envDefault:"false"`
 		TraefikLbURL  string `env:"LB_URL" envDefault:"http://localhost:9091"`
+		LogLevel      string `env:"LOG_LEVEL" envDefault:"info"`
 	}{
 		ServerConfig: cfg,
 	}
 
 	err := conf.LoadConfig(&rpCfg)
 	if nil != err {
-		log.Fatalf("Cannot load config %s", err.Error())
+		log.Fatalf("Cannot load config %v", err)
 	}
+	ll, err := log.ParseLevel(rpCfg.LogLevel)
+	if err != nil {
+		log.Fatalf("Incorrect log level provided: %v", err)
+	}
+	log.SetLevel(ll)
 
 	info := commons.GetBuildInfo()
 	info.Name = "Index Service"
