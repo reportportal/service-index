@@ -1,4 +1,4 @@
-FROM alpine:3.15
+FROM alpine:3.16.2
 
 MAINTAINER Andrei Varabyeu <andrei_varabyeu@epam.com>
 LABEL quay.expires-after=1w

@@ -3,16 +3,16 @@ package k8s
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/resty.v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
@@ -185,7 +185,7 @@ func (a *Aggregator) getNodesInfo() (map[string]*NodeInfo, error) {
 }
 
 func getCurrentNamespace() (string, error) {
-	ns, err := ioutil.ReadFile(nsSecret)
+	ns, err := os.ReadFile(nsSecret)
 	if err != nil {
 		return "", fmt.Errorf("failed to read namespace secret file: %w", err)
 	}
