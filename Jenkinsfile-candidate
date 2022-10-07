@@ -31,7 +31,7 @@ node {
     }
 
     stage('Push to ECR') {
-      withEnv(["AWS_URI=${AWS_URI}", "AWS_REGION=${AWS_REGION}", "VERSION=${VERSION}"]) {
+      withEnv(["AWS_URI=${AWS_URI}", "AWS_REGION=${AWS_REGION}", "TAG=${VERSION}"]) {
         def image = env.AWS_URI + '/service-index:' + env.TAG + '-RC-' + env.BUILD_NUMBER
         def url = 'https://' + env.AWS_URI
         def credentials = 'ecr:' + env.AWS_REGION + ':aws_credentials'
@@ -44,7 +44,7 @@ node {
 
     stage('Cleanup') {
       withEnv(["AWS_URI=${AWS_URI}"]) {
-          sh 'docker rmi ${AWS_URI}/service-index:${VERSION}-RC-${BUILD_NUMBER}'
+          sh 'docker rmi $AWS_URI/service-index:$VERSION-RC-$BUILD_NUMBER'
       }
     }
   }
