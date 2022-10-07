@@ -25,9 +25,8 @@ node {
     }
  
     stage('Build Docker Image') {
-      withEnv(["AWS_URI=${AWS_URI}"]) {
-          sh 'make IMAGE_NAME=${AWS_URI}/service-index build-image v=$VERSION-RC-$BUILD_NUMBER'
-      }
+      sh 'make IMAGE_NAME=${AWS_URI}/service-index build-image v=${VERSION}-RC-$BUILD_NUMBER'
+      sh 'docker image tag ${AWS_URI}/service-index:latest ${AWS_URI}/service-index:${VERSION}-RC-$BUILD_NUMBER'
     }
 
     stage('Push to ECR') {
@@ -35,6 +34,8 @@ node {
         def image = env.AWS_URI + '/service-index:' + env.TAG + '-RC-' + env.BUILD_NUMBER
         def url = 'https://' + env.AWS_URI
         def credentials = 'ecr:' + env.AWS_REGION + ':aws_credentials'
+
+        
         
         docker.withRegistry(url, credentials) {
             docker.image(image).push()
@@ -45,6 +46,7 @@ node {
     stage('Cleanup') {
       withEnv(["AWS_URI=${AWS_URI}"]) {
           sh 'docker rmi ${AWS_URI}/service-index:${VERSION}-RC-${BUILD_NUMBER}'
+          sh 'docker rmi ${AWS_URI}/service-index:latest'
       }
     }
   }
