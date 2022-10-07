@@ -25,7 +25,9 @@ node {
     }
  
     stage('Build Docker Image') {
-          sh 'make IMAGE_NAME=$AWS_URI/service-index build-image v=$VERSION-RC-$BUILD_NUMBER'
+      withEnv(["AWS_URI=${AWS_URI}"]) {
+          sh 'make IMAGE_NAME=${AWS_URI}/service-index build-image v=$VERSION-RC-$BUILD_NUMBER'
+      }
     }
 
     stage('Push to ECR') {
