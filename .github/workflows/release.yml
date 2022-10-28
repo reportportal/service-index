@@ -126,7 +126,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Bump version
-        uses: HardNorth/github-version-generate@v1.1.0
+        uses: HardNorth/github-version-generate@v1
         with:
           version: ${{ github.event.inputs.version }}-SNAPSHOT
           next-version-increment-patch: true
