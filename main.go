@@ -74,6 +74,9 @@ func main() {
 				log.Error(err)
 			}
 		})
+		router.HandleFunc(rpCfg.Path, func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, rpCfg.Path+"/ui/", http.StatusFound)
+		})
 		router.HandleFunc(rpCfg.Path+"/", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, rpCfg.Path+"/ui/", http.StatusFound)
 		})
