@@ -26,6 +26,9 @@ env:
 jobs:
   prepare:
     runs-on: ubuntu-latest
+    outputs:
+      RELEASE_URL: ${{ steps.releaseUrl.outputs.RELEASE_URL }}
+
     steps:
       - uses: actions/checkout@v3
 
@@ -71,6 +74,7 @@ jobs:
           prerelease: false
 
       - name: Export release URL
+        id: releaseUrl
         run: 'echo "RELEASE_URL=${{ steps.createRelease.outputs.upload_url }}" >> $GITHUB_OUTPUT'
 
   build:
