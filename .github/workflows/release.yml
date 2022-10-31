@@ -71,7 +71,7 @@ jobs:
           prerelease: false
 
       - name: Export release URL
-        run: 'echo "RELEASE_URL=${{ steps.createRelease.outputs.upload_url }}" >> $GITHUB_ENV'
+        run: 'echo "RELEASE_URL=${{ steps.createRelease.outputs.upload_url }}" >> $GITHUB_OUTPUT'
 
   build:
     runs-on: ubuntu-latest
@@ -123,7 +123,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ env.RELEASE_URL }}
+          upload_url: ${{ needs.prepare.outputs.RELEASE_URL }}
           asset_path: ${{ env.RELEASE_DIR }}/${{ env.ARTIFACT_NAME }}
           asset_name: ${{ env.ARTIFACT_NAME }}
           asset_content_type: application/octet-stream
