@@ -24,13 +24,9 @@ env:
     -X ${PACKAGE_COMMONS}/commons.version=${VERSION}"
 
 jobs:
-  build:
+  prepare:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Get Date
-        run: 'echo "BUILD_DATE=`date +%FT%T%z`" >> $GITHUB_ENV'
-
       - uses: actions/checkout@v3
 
       - name: Setup Go
@@ -50,41 +46,12 @@ jobs:
       - name: Go Dependencies
         run: 'go mod download'
 
-      - name: Go Build Linux
-        env:
-          CGO_ENABLED: 0
-          GOOS: linux
-          GOARCH: amd64
-          VERSION: ${{ github.event.inputs.version }}
-        run: |
-          go build ${{ env.BUILD_INFO_LDFLAGS }} -o ${{ env.RELEASE_DIR }}/${{ env.LINUX_ARTIFACT_NAME }} ./
-          file ${{ env.RELEASE_DIR }}/${{ env.LINUX_ARTIFACT_NAME }}
-
-      - name: Go Build Windows
-        env:
-          CGO_ENABLED: 0
-          GOOS: windows
-          GOARCH: amd64
-          VERSION: ${{ github.event.inputs.version }}
-        run: |
-          go build ${{ env.BUILD_INFO_LDFLAGS }} -o ${{ env.RELEASE_DIR }}/${{ env.WINDOWS_ARTIFACT_NAME }} ./
-          file ${{ env.RELEASE_DIR }}/${{ env.WINDOWS_ARTIFACT_NAME }}
-
       - name: Setup git credentials
         uses: oleksiyrudenko/gha-git-credentials@v2
         with:
           name: 'reportportal.io'
           email: 'support@reportportal.io'
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update Dockerfile
-        id: dockerfileUpdate
-        run: |
-          sed 's/${{ env.VERSION_PLACEHOLDER }}/${{ github.event.inputs.version }}/g' ${{ env.DOCKER_TEMPLATE_FILE }} > ${{ env.DOCKER_BUILD_FILE }}
-          git add ${{ env.DOCKER_BUILD_FILE }}
-          export CHANGED=`git status | grep ${{ env.DOCKER_BUILD_FILE }} | xargs`
-          [ -z "${CHANGED}" ] || git commit -m "Dockerfile update"
-          git push
 
       - name: Tag release
         id: tagRelease
@@ -103,27 +70,83 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Linix Binary Asset
-        id: upload-linux-binary-asset
+      - name: Export release URL
+        run: 'echo "RELEASE_URL=${{ steps.createRelease.outputs.upload_url }}" >> $GITHUB_ENV'
+
+  build:
+    runs-on: ubuntu-latest
+    needs: 'prepare'
+
+    strategy:
+      matrix:
+        os: [ 'windows', 'linux' ]
+        arch: [ 'amd64', 'arm64' ]
+        exclude:
+          - os: 'windows'
+            arch: 'arm64'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '^1.19.1'
+
+      - name: Get Date
+        run: 'echo "BUILD_DATE=`date +%FT%T%z`" >> $GITHUB_ENV'
+
+      - name: Generate name
+        run: |
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            ARTIFACT_NAME_POSTFIX=".exe"
+          fi
+          echo "ARTIFACT_NAME=service-index_${{ matrix.os }}_${{ matrix.arch }}${ARTIFACT_NAME_POSTFIX}" >> $GITHUB_ENV
+
+      - name: Go Build
+        env:
+          CGO_ENABLED: 0
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          VERSION: ${{ github.event.inputs.version }}
+        run: |
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            export CGO_ENABLED=0
+          fi
+
+          go build ${{ env.BUILD_INFO_LDFLAGS }} -o ${{ env.RELEASE_DIR }}/${{ env.ARTIFACT_NAME }} ./
+          file ${{ env.RELEASE_DIR }}/${{ env.ARTIFACT_NAME }}
+
+      - name: Upload Binary Asset
+        id: upload-binary-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.createRelease.outputs.upload_url }}
-          asset_path: ${{ env.RELEASE_DIR }}/${{ env.LINUX_ARTIFACT_NAME }}
-          asset_name: ${{ env.LINUX_ARTIFACT_NAME }}
+          upload_url: ${{ env.RELEASE_URL }}
+          asset_path: ${{ env.RELEASE_DIR }}/${{ env.ARTIFACT_NAME }}
+          asset_name: ${{ env.ARTIFACT_NAME }}
           asset_content_type: application/octet-stream
 
-      - name: Upload Windows Binary Asset
-        id: upload-windows-binary-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  finish:
+    runs-on: ubuntu-latest
+    needs: 'build'
+
+    steps:
+      - name: Setup git credentials
+        uses: oleksiyrudenko/gha-git-credentials@v2
         with:
-          upload_url: ${{ steps.createRelease.outputs.upload_url }}
-          asset_path: ${{ env.RELEASE_DIR }}/${{ env.WINDOWS_ARTIFACT_NAME }}
-          asset_name: ${{ env.WINDOWS_ARTIFACT_NAME }}
-          asset_content_type: application/octet-stream
+          name: 'reportportal.io'
+          email: 'support@reportportal.io'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Dockerfile
+        id: dockerfileUpdate
+        run: |
+          sed 's/${{ env.VERSION_PLACEHOLDER }}/${{ github.event.inputs.version }}/g' ${{ env.DOCKER_TEMPLATE_FILE }} > ${{ env.DOCKER_BUILD_FILE }}
+          git add ${{ env.DOCKER_BUILD_FILE }}
+          export CHANGED=`git status | grep ${{ env.DOCKER_BUILD_FILE }} | xargs`
+          [ -z "${CHANGED}" ] || git commit -m "Dockerfile update"
 
       - name: Bump version
         uses: HardNorth/github-version-generate@v1
