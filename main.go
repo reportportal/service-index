@@ -27,6 +27,7 @@ func main() {
 		TraefikV2Mode bool   `env:"TRAEFIK_V2_MODE" envDefault:"false"`
 		TraefikLbURL  string `env:"LB_URL" envDefault:"http://localhost:9091"`
 		LogLevel      string `env:"LOG_LEVEL" envDefault:"info"`
+		Path          string `env:"RESOURCE_PATH" envDefault:""`
 	}{
 		ServerConfig: cfg,
 	}
@@ -60,7 +61,7 @@ func main() {
 	srv.WithRouter(func(router *chi.Mux) {
 		router.Use(middleware.Logger)
 		router.NotFound(func(w http.ResponseWriter, rq *http.Request) {
-			http.Redirect(w, rq, "/ui/#notfound", http.StatusFound)
+			http.Redirect(w, rq, rpCfg.Path+"/ui/#notfound", http.StatusFound)
 		})
 
 		router.HandleFunc("/composite/info", func(w http.ResponseWriter, r *http.Request) {
@@ -74,10 +75,10 @@ func main() {
 			}
 		})
 		router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/ui/", http.StatusFound)
+			http.Redirect(w, r, rpCfg.Path+"/ui/", http.StatusFound)
 		})
 		router.HandleFunc("/ui", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, "/ui/", http.StatusFound)
+			http.Redirect(w, r, rpCfg.Path+"/ui/", http.StatusFound)
 		})
 	})
 	srv.StartServer()
