@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	traefikV1ProvidersURL = "/api/providers/docker"
-	traefikV2ServicesURL  = "/api/http/services"
+	traefikLocalProvidersURL = "/api/providers"
+	traefikV1ProvidersURL    = "/api/providers/docker"
+	traefikV2ServicesURL     = "/api/http/services"
 )
 
 var (
@@ -26,6 +27,11 @@ var (
 // Providers represents traefik response model
 type Providers struct {
 	Docker *Provider `json:"docker,omitempty"`
+}
+
+// LocalProvider represents traefik v1.* with local installation response model
+type LocalProvider struct {
+	Provider Provider `json:"file,omitempty"`
 }
 
 // Provider represents traefik response model
@@ -46,9 +52,10 @@ type Server struct {
 
 // Aggregator represents traefik response model
 type Aggregator struct {
-	r          *resty.Client
-	traefikURL string
-	v2         bool
+	r              *resty.Client
+	traefikURL     string
+	v2             bool
+	containerBased bool
 }
 
 // NodeInfo embeds node-related information
@@ -81,13 +88,14 @@ func (ni *NodeInfo) buildURL(h, path string) string {
 }
 
 // NewAggregator creates new traefik aggregator
-func NewAggregator(traefikURL string, traefikV2 bool, timeout time.Duration) *Aggregator {
+func NewAggregator(traefikURL string, traefikV2 bool, containerBased bool, timeout time.Duration) *Aggregator {
 	return &Aggregator{
 		r: resty.NewWithClient(&http.Client{
 			Timeout: timeout,
 		}),
-		traefikURL: traefikURL,
-		v2:         traefikV2,
+		traefikURL:     traefikURL,
+		v2:             traefikV2,
+		containerBased: containerBased,
 	}
 }
 
@@ -131,10 +139,14 @@ func (a *Aggregator) AggregateInfo() map[string]interface{} {
 func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[string]interface{} {
 	var nodesInfo map[string]*NodeInfo
 	var err error
-	if a.v2 {
-		nodesInfo, err = a.getNodesInfoV2()
+	if a.containerBased {
+		if a.v2 {
+			nodesInfo, err = a.getNodesInfoV2()
+		} else {
+			nodesInfo, err = a.getNodesInfo()
+		}
 	} else {
-		nodesInfo, err = a.getNodesInfo()
+		nodesInfo, err = a.getNodesInfoVLocal()
 	}
 
 	if err != nil {
@@ -197,6 +209,22 @@ func (a *Aggregator) getNodesInfoV2() (map[string]*NodeInfo, error) {
 		if b.LoadBalancer != nil {
 			nodesInfo[backName] = &NodeInfo{URL: b.LoadBalancer.Servers[0].URL}
 		}
+	}
+
+	return nodesInfo, nil
+}
+
+func (a *Aggregator) getNodesInfoVLocal() (map[string]*NodeInfo, error) {
+	var provider LocalProvider
+	_, err := a.r.R().SetResult(&provider).Get(a.traefikURL + traefikLocalProvidersURL)
+	if nil != err {
+		return nil, fmt.Errorf("unable to GET Traefik providers: %w", err)
+	}
+
+	nodesInfo := make(map[string]*NodeInfo, len(provider.Provider.Backends))
+
+	for bName, b := range provider.Provider.Backends {
+		nodesInfo[bName] = &NodeInfo{URL: getFirstNode(b.Servers).URL}
 	}
 
 	return nodesInfo, nil

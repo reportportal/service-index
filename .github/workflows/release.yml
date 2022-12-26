@@ -9,7 +9,7 @@ on:
 
 env:
   GODIRS_NOVENDOR: '`go list ./... | grep -v /vendor/`'
-  PACKAGE_COMMONS: 'github.com/reportportal/commons-go/v5'
+  PACKAGE_COMMONS: 'github.com/reportportal/commons-go'
   RELEASE_DIR: 'release'
   LINUX_ARTIFACT_NAME: 'service-index_linux_amd64'
   WINDOWS_ARTIFACT_NAME: 'service-index_win_amd64.exe'

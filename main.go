@@ -55,7 +55,7 @@ func main() {
 			log.Fatalf("Incorrect K8S config %s", err.Error())
 		}
 	} else {
-		aggreg = traefik.NewAggregator(rpCfg.TraefikLbURL, rpCfg.TraefikV2Mode, httpClientTimeout)
+		aggreg = traefik.NewAggregator(rpCfg.TraefikLbURL, rpCfg.TraefikV2Mode, rpCfg.TraefikContainerBased, httpClientTimeout)
 	}
 
 	srv.WithRouter(func(router *chi.Mux) {
