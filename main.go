@@ -23,11 +23,12 @@ func main() {
 
 	rpCfg := struct {
 		*conf.ServerConfig
-		K8sMode       bool   `env:"K8S_MODE" envDefault:"false"`
-		TraefikV2Mode bool   `env:"TRAEFIK_V2_MODE" envDefault:"false"`
-		TraefikLbURL  string `env:"LB_URL" envDefault:"http://localhost:9091"`
-		LogLevel      string `env:"LOG_LEVEL" envDefault:"info"`
-		Path          string `env:"RESOURCE_PATH" envDefault:""`
+		K8sMode               bool   `env:"K8S_MODE" envDefault:"false"`
+		TraefikV2Mode         bool   `env:"TRAEFIK_V2_MODE" envDefault:"false"`
+		TraefikContainerBased bool   `env:"TRAEFIK_CONTAINER" envDefault:"true"`
+		TraefikLbURL          string `env:"LB_URL" envDefault:"http://localhost:8081"`
+		LogLevel              string `env:"LOG_LEVEL" envDefault:"info"`
+		Path                  string `env:"RESOURCE_PATH" envDefault:""`
 	}{
 		ServerConfig: cfg,
 	}
