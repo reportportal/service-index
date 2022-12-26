@@ -4,7 +4,7 @@
 
 [![Build](https://github.com/reportportal/service-index/actions/workflows/build.yml/badge.svg)](https://github.com/reportportal/service-index/actions/workflows/build.yml)
 [![Code Coverage](https://codecov.io/gh/reportportal/service-index/branch/master/graph/badge.svg)](https://codecov.io/gh/reportportal/service-index)
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/reportportal/service-index?sort=semver)](https://github.com/reportportal/service-index/releases/latest)
+[![GitHub release (latest SemVer)](https://badgen.net/github/release/reportportal/service-index)](https://github.com/reportportal/service-index/releases/latest)
 [![Docker Pulls](https://img.shields.io/docker/pulls/reportportal/service-index.svg?maxAge=159200)](https://hub.docker.com/r/reportportal/service-index/)
 
 ## Copyright Notice

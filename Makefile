@@ -7,7 +7,7 @@ GO = go
 BINARY_DIR=bin
 RELEASE_DIR=release
 
-BUILD_DEPS:= github.com/avarabyeu/releaser
+BUILD_DEPS:= github.com/avarabyeu/releaser@master
 GODIRS_NOVENDOR = $(shell go list ./... | grep -v /vendor/)
 GOFILES_NOVENDOR = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 PWD = $(shell pwd)
@@ -26,7 +26,7 @@ help:
 
 get-build-deps:
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(shell go env GOPATH)/bin" v1.46.2
-	$(GO) get $(BUILD_DEPS)
+	$(GO) install $(BUILD_DEPS)
 
 test:
 	ls -la

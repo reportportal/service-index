@@ -23,7 +23,7 @@ node {
     stage('Checkout') {
       checkout scm
     }
- 
+
     stage('Build Docker Image') {
         withEnv(["VERSION=${VERSION}", "AWS_URI=${AWS_URI}"]) {
           sh 'make IMAGE_NAME=${AWS_URI}/service-index build-image v=${VERSION}-RC-$BUILD_NUMBER'
@@ -37,8 +37,6 @@ node {
         def url = 'https://' + env.AWS_URI
         def credentials = 'ecr:' + env.AWS_REGION + ':aws_credentials'
 
-        
-        
         docker.withRegistry(url, credentials) {
             docker.image(image).push()
         }
