@@ -122,7 +122,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          RELEASE_URL=`echo '${{ needs.prepare.outputs.RELEASE_URL }}' | sed -E s/{[^}]*}//`
+          RELEASE_URL=`echo '${{ needs.prepare.outputs.RELEASE_URL }}' | sed -E 's/\{[^}]*\}//'`
           curl \
             -X POST \
             -H "Accept: application/vnd.github+json" \
