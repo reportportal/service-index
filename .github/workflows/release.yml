@@ -50,7 +50,7 @@ jobs:
         run: 'go mod download'
 
       - name: Setup git credentials
-        uses: oleksiyrudenko/gha-git-credentials@v2
+        uses: oleksiyrudenko/gha-git-credentials@v2.1.1
         with:
           name: 'reportportal.io'
           email: 'support@reportportal.io'
@@ -64,14 +64,10 @@ jobs:
 
       - name: Create Release
         id: createRelease
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          release_name: Release ${{ github.event.inputs.version }}
-          draft: false
-          prerelease: false
+          tag: v${{ github.event.inputs.version }}
+          name: Release ${{ github.event.inputs.version }}
 
       - name: Export release URL
         id: releaseUrl
@@ -123,14 +119,11 @@ jobs:
 
       - name: Upload Binary Asset
         id: upload-binary-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: AButler/upload-release-assets@v2.0
         with:
-          upload_url: ${{ needs.prepare.outputs.RELEASE_URL }}
-          asset_path: ${{ env.RELEASE_DIR }}/${{ env.ARTIFACT_NAME }}
-          asset_name: ${{ env.ARTIFACT_NAME }}
-          asset_content_type: application/octet-stream
+          files: ${{ env.RELEASE_DIR }}/${{ env.ARTIFACT_NAME }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: v${{ github.event.inputs.version }}
 
   finish:
     runs-on: ubuntu-latest
