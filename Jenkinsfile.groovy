@@ -10,7 +10,6 @@ node {
                 checkout scm
             }
 
-            docker.withServer("$DOCKER_HOST") {
                 stage('Build Docker Image') {
                    sh """          
                    MAJOR_VER=\$(cat VERSION)
@@ -42,7 +41,6 @@ node {
                               }
                        }
                 }
-            }
 
         }
 }
