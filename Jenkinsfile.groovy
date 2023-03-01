@@ -19,13 +19,13 @@ node {
                 }
 
                 stage('Deploy container') {
-                   sh "docker-compose -p reportportal -f $COMPOSE_FILE_RP up -d --force-recreate index"
                    stage('Push to ECR') {
                       withEnv(["AWS_URI=${AWS_URI}", "AWS_REGION=${AWS_REGION}"]) {
-                             sh 'docker tag reportportal-dev/service-index ${AWS_URI}/service-index'
-                             def image = env.AWS_URI + '/service-index'
+                             sh 'docker tag reportportal-dev/service-index ${AWS_URI}/service-index:SNAPSHOT-${BUILD_NUMBER}'
+                             def image = env.AWS_URI + '/service-index' + ':SNAPSHOT-' + env.BUILD_NUMBER
                              def url = 'https://' + env.AWS_URI
                              def credentials = 'ecr:' + env.AWS_REGION + ':aws_credentials'
+                             echo image
                              docker.withRegistry(url, credentials) {
                                 docker.image(image).push('SNAPSHOT-${BUILD_NUMBER}')
                              }
@@ -34,11 +34,9 @@ node {
                 }
                    
                 stage('Cleanup') {
-                   docker.withServer("$DOCKER_HOST") {
                        withEnv(["AWS_URI=${AWS_URI}"]) {
                                   sh 'docker rmi ${AWS_URI}/service-index:SNAPSHOT-${BUILD_NUMBER}'
                                   sh 'docker rmi ${AWS_URI}/service-index:latest'
-                              }
                        }
                 }
 
