@@ -35,6 +35,7 @@ vendor/*/
 
 ## VSCode meta info
 .vscode/
+.devcontainer/
 
 ##release artifacts
 release/
