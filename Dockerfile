@@ -6,7 +6,7 @@ ARG BUILDPLATFORM TARGETOS TARGETARCH
 ARG APP_VERSION=develop
 ARG PACKAGE_COMMONS=github.com/reportportal/commons-go/v5
 ARG REPO_NAME=reportportal/service-index
-ARG COMMIT_HASH
+ARG BUILD_BRANCH
 ARG BUILD_DATE
 
 ADD . ${APP_DIR}
@@ -17,7 +17,7 @@ RUN echo "I am running on $BUILDPLATFORM, building for TargetOS: $TARGETOS and T
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
         -ldflags "-extldflags '"-static"' \
         -X ${PACKAGE_COMMONS}/commons.repo=${REPO_NAME} \
-        -X ${PACKAGE_COMMONS}/commons.branch=${COMMIT_HASH} \
+        -X ${PACKAGE_COMMONS}/commons.branch=${BUILD_BRANCH} \
         -X ${PACKAGE_COMMONS}/commons.buildDate=${BUILD_DATE} \
         -X ${PACKAGE_COMMONS}/commons.version=${APP_VERSION}" \
         -o app ./
