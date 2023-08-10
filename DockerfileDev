@@ -5,9 +5,12 @@ LABEL quay.expires-after=1w
 
 ARG service
 RUN apk --no-cache add ca-certificates
-WORKDIR /root/
 
-ADD ./bin/service-index /
+ENV DEPOLY_DIR=/app/service-index
+RUN mkdir -p $DEPOLY_DIR
+WORKDIR $DEPOLY_DIR
+
+ADD ./bin/service-index $DEPOLY_DIR/
 
 EXPOSE 8080
-ENTRYPOINT ["/service-index"]
+ENTRYPOINT ["./service-index"]
