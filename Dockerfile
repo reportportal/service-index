@@ -2,7 +2,9 @@ FROM --platform=${BUILDPLATFORM} golang:1.19.1-alpine AS builder
 
 ENV APP_DIR=/go/src/github.com/org/repo
 
-ARG BUILDPLATFORM TARGETOS TARGETARCH
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 ARG APP_VERSION=develop
 ARG PACKAGE_COMMONS=github.com/reportportal/commons-go/v5
 ARG REPO_NAME=reportportal/service-index
@@ -23,7 +25,11 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
         -o app ./
 
 FROM --platform=$BUILDPLATFORM alpine:3.16.2
-WORKDIR /root/
+ENV DEPOLY_DIR=/app/service-index
+RUN mkdir -p $DEPOLY_DIR
+WORKDIR $DEPOLY_DIR
+
+RUN chgrp -R 0 $DEPOLY_DIR && chmod -R g=u $DEPOLY_DIR
 
 ENV APP_DIR=/go/src/github.com/org/repo
 ARG APP_VERSION
