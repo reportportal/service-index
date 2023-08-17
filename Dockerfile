@@ -1,14 +1,44 @@
-FROM alpine:3.16.2
+FROM --platform=${BUILDPLATFORM} golang:1.19.1-alpine AS builder
+
+ENV APP_DIR=/go/src/github.com/org/repo
+
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+ARG APP_VERSION=develop
+ARG PACKAGE_COMMONS=github.com/reportportal/commons-go/v5
+ARG REPO_NAME=reportportal/service-index
+ARG BUILD_BRANCH
+ARG BUILD_DATE
+
+ADD . ${APP_DIR}
+WORKDIR ${APP_DIR}
+
+RUN echo "I am running on $BUILDPLATFORM, building for TargetOS: $TARGETOS and Targetarch: $TARGETARCH"
+
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
+        -ldflags "-extldflags '"-static"' \
+        -X ${PACKAGE_COMMONS}/commons.repo=${REPO_NAME} \
+        -X ${PACKAGE_COMMONS}/commons.branch=${BUILD_BRANCH} \
+        -X ${PACKAGE_COMMONS}/commons.buildDate=${BUILD_DATE} \
+        -X ${PACKAGE_COMMONS}/commons.version=${APP_VERSION}" \
+        -o app ./
+
+FROM --platform=$BUILDPLATFORM alpine:3.16.2
+ENV DEPOLY_DIR=/app/service-index
+RUN mkdir -p $DEPOLY_DIR
+WORKDIR $DEPOLY_DIR
+
+RUN chgrp -R 0 $DEPOLY_DIR && chmod -R g=u $DEPOLY_DIR
+
+ENV APP_DIR=/go/src/github.com/org/repo
+ARG APP_VERSION
 
 LABEL maintainer="Andrei Varabyeu <andrei_varabyeu@epam.com>"
-LABEL version=5.8.0
+LABEL version=${APP_VERSION}
 
-ENV APP_DOWNLOAD_URL https://github.com/reportportal/service-index/releases/download/v5.8.0/service-index_linux_amd64
 RUN apk --no-cache add --upgrade apk-tools
-
-ADD ${APP_DOWNLOAD_URL} /service-index
-
-RUN chmod +x /service-index
+COPY --from=builder ${APP_DIR}/app .
 
 EXPOSE 8080
-ENTRYPOINT ["/service-index"]
+ENTRYPOINT ["./app"]
