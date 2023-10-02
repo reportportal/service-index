@@ -14,7 +14,7 @@ ARG BUILD_DATE
 ADD . ${APP_DIR}
 WORKDIR ${APP_DIR}
 
-RUN echo "I am running on $BUILDPLATFORM, building for TargetOS: $TARGETOS and Targetarch: $TARGETARCH"
+RUN echo "I am running on ${BUILDPLATFORM}, building for TargetOS: $TARGETOS and Targetarch: ${TARGETARCH}"
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
         -ldflags "-extldflags '"-static"' \
@@ -24,12 +24,12 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
         -X ${PACKAGE_COMMONS}/commons.version=${APP_VERSION}" \
         -o app ./
 
-FROM --platform=$BUILDPLATFORM alpine:3.16.2
+FROM --platform=${BUILDPLATFORM} alpine:3.16.2
 ENV DEPOLY_DIR=/app/service-index
-RUN mkdir -p $DEPOLY_DIR
-WORKDIR $DEPOLY_DIR
+RUN mkdir -p ${DEPOLY_DIR}
+WORKDIR ${DEPOLY_DIR}
 
-RUN chgrp -R 0 $DEPOLY_DIR && chmod -R g=u $DEPOLY_DIR
+RUN chgrp -R 0 ${DEPOLY_DIR} && chmod -R g=u ${DEPOLY_DIR}
 
 ENV APP_DIR=/go/src/github.com/org/repo
 ARG APP_VERSION
