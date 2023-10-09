@@ -58,7 +58,7 @@ type Aggregator struct {
 	traefikURL     string
 	v2             bool
 	containerBased bool
-	usePath        bool
+	usePathPrefix  bool
 }
 
 // NodeInfo embeds node-related information
@@ -87,7 +87,7 @@ func (ni *NodeInfo) GetHealthEndpoint() string {
 }
 
 // NewAggregator creates new traefik aggregator
-func NewAggregator(traefikURL string, traefikV2 bool, containerBased bool, usePath bool, timeout time.Duration) *Aggregator {
+func NewAggregator(traefikURL string, traefikV2 bool, containerBased bool, usePathPrefix bool, timeout time.Duration) *Aggregator {
 	return &Aggregator{
 		r: resty.NewWithClient(&http.Client{
 			Timeout: timeout,
@@ -95,7 +95,7 @@ func NewAggregator(traefikURL string, traefikV2 bool, containerBased bool, usePa
 		traefikURL:     traefikURL,
 		v2:             traefikV2,
 		containerBased: containerBased,
-		usePath:        usePath,
+		usePathPrefix:  usePathPrefix,
 	}
 }
 
@@ -142,7 +142,7 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 	if a.containerBased {
 		if a.v2 {
 			nodesInfo, err = a.getNodesInfoV2()
-		} else if a.usePath {
+		} else if a.usePathPrefix {
 			nodesInfo, err = a.getNodesInfoWithPath()
 		} else {
 			nodesInfo, err = a.getNodesInfo()
