@@ -26,7 +26,7 @@ func main() {
 		K8sMode               bool   `env:"K8S_MODE"          envDefault:"false"`
 		TraefikV2Mode         bool   `env:"TRAEFIK_V2_MODE"   envDefault:"false"`
 		TraefikContainerBased bool   `env:"TRAEFIK_CONTAINER" envDefault:"true"`
-		usePathPrefix         bool   `env:"USE_PATH_PREFIX"   envDefault:"false"`
+		UsePathPrefix         bool   `env:"USE_PATH_PREFIX"   envDefault:"false"`
 		TraefikLbURL          string `env:"LB_URL"            envDefault:"http://localhost:8081"`
 		LogLevel              string `env:"LOG_LEVEL"         envDefault:"info"`
 		Path                  string `env:"RESOURCE_PATH"     envDefault:""`
@@ -61,7 +61,7 @@ func main() {
 			rpCfg.TraefikLbURL,
 			rpCfg.TraefikV2Mode,
 			rpCfg.TraefikContainerBased,
-			rpCfg.usePathPrefix,
+			rpCfg.UsePathPrefix,
 			httpClientTimeout,
 		)
 	}
