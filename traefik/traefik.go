@@ -17,11 +17,13 @@ const (
 	traefikLocalProvidersURL = "/api/providers"
 	traefikV1ProvidersURL    = "/api/providers/docker"
 	traefikV2ServicesURL     = "/api/http/services"
+	traefikRawDataURL        = "/api/rawdata"
 )
 
 var (
 	errEmptyResponse = errors.New("response is empty")
 	errGetHealth     = errors.New("unable to update health info")
+	errPathParsing   = errors.New("unable to parse path")
 )
 
 // Providers represents traefik response model
@@ -47,7 +49,7 @@ type Backend struct {
 // Server represents traefik response model
 type Server struct {
 	URL    string `json:"url"`
-	Weight int    `json:"weight"`
+	Weight int    `json:"weight,omitempty"`
 }
 
 // Aggregator represents traefik response model
@@ -56,6 +58,7 @@ type Aggregator struct {
 	traefikURL     string
 	v2             bool
 	containerBased bool
+	usePathPrefix  bool
 }
 
 // NodeInfo embeds node-related information
@@ -65,30 +68,26 @@ type NodeInfo struct {
 
 // GetInfoEndpoint returns info endpoint URL
 func (ni *NodeInfo) GetInfoEndpoint() string {
-	return ni.URL + "/info"
+	infoEndpoint, err := url.JoinPath(ni.URL, "/info")
+	if nil != err {
+		log.Errorf("Unable to join URL: %v", err)
+	}
+
+	return infoEndpoint
 }
 
 // GetHealthEndpoint returns health check URL
 func (ni *NodeInfo) GetHealthEndpoint() string {
-	return ni.URL + "/health"
-}
-
-//nolint:unused
-func (ni *NodeInfo) buildURL(h, path string) string {
-	u, err := url.Parse(h)
+	healthEndpoint, err := url.JoinPath(ni.URL, "/health")
 	if nil != err {
-		log.Error(err)
-
-		return ""
+		log.Errorf("Unable to join URL: %v", err)
 	}
-	// u.Host = h
-	u.Path = path
 
-	return u.String()
+	return healthEndpoint
 }
 
 // NewAggregator creates new traefik aggregator
-func NewAggregator(traefikURL string, traefikV2 bool, containerBased bool, timeout time.Duration) *Aggregator {
+func NewAggregator(traefikURL string, traefikV2 bool, containerBased bool, usePathPrefix bool, timeout time.Duration) *Aggregator {
 	return &Aggregator{
 		r: resty.NewWithClient(&http.Client{
 			Timeout: timeout,
@@ -96,6 +95,7 @@ func NewAggregator(traefikURL string, traefikV2 bool, containerBased bool, timeo
 		traefikURL:     traefikURL,
 		v2:             traefikV2,
 		containerBased: containerBased,
+		usePathPrefix:  usePathPrefix,
 	}
 }
 
@@ -142,6 +142,8 @@ func (a *Aggregator) aggregate(f func(ni *NodeInfo) (interface{}, error)) map[st
 	if a.containerBased {
 		if a.v2 {
 			nodesInfo, err = a.getNodesInfoV2()
+		} else if a.usePathPrefix {
+			nodesInfo, err = a.getNodesInfoWithPath()
 		} else {
 			nodesInfo, err = a.getNodesInfo()
 		}
@@ -230,12 +232,69 @@ func (a *Aggregator) getNodesInfoVLocal() (map[string]*NodeInfo, error) {
 	return nodesInfo, nil
 }
 
+func (a *Aggregator) getNodesInfoWithPath() (map[string]*NodeInfo, error) {
+	var rawData RawData
+	rs, err := a.r.R().SetResult(&rawData).Get(a.traefikURL + traefikRawDataURL)
+
+	if nil != err {
+		return nil, fmt.Errorf("unable to GET Traefik raw data: %w", err)
+	}
+
+	if rs.StatusCode() != http.StatusOK {
+		return nil, errGetHealth
+	}
+
+	nodesInfo := make(map[string]*NodeInfo, len(rawData.Services))
+
+	for sName, s := range rawData.Services {
+		if s.LoadBalancer != nil {
+			backName := strings.Split(sName, "@")[0]
+			sURL := s.LoadBalancer.Servers[0].URL
+			path, err := getPath(rawData.Routers[sName].Rule)
+			if nil != err {
+				return nil, fmt.Errorf("unable to parse path: %w", err)
+			}
+			nodesInfo[backName] = &NodeInfo{URL: sURL + path}
+		}
+	}
+
+	return nodesInfo, nil
+}
+
 func getFirstNode(m map[string]*Server) *Server {
 	for _, v := range m {
 		return v
 	}
 
 	return nil
+}
+
+func getPath(s string) (string, error) {
+	if strings.HasPrefix(s, "PathPrefix(`") {
+		path := strings.TrimPrefix(s, "PathPrefix(`")
+		path = strings.TrimSuffix(path, "`)")
+
+		return path, nil
+	} else if strings.HasPrefix(s, "Path(`") {
+		path := strings.TrimPrefix(s, "Path(`")
+		path = strings.TrimSuffix(path, "`)")
+
+		return path, nil
+	} else {
+		return "", errPathParsing
+	}
+}
+
+type RawData struct {
+	Routers  map[string]Router      `json:"routers,omitempty"`
+	Services map[string]ServiceInfo `json:"services,omitempty"`
+}
+
+type Router struct {
+	Service string   `json:"service,omitempty"`
+	Rule    string   `json:"rule,omitempty"`
+	Status  string   `json:"status,omitempty"`
+	Using   []string `json:"using,omitempty"`
 }
 
 type serviceRepresentation struct {
@@ -248,34 +307,35 @@ type serviceRepresentation struct {
 
 // ServiceInfo holds information about a currently running service.
 type ServiceInfo struct {
-	LoadBalancer *ServersLoadBalancer `json:"loadBalancer,omitempty" toml:"loadBalancer,omitempty" yaml:"loadBalancer,omitempty"`
-	Weighted     *WeightedRoundRobin  `json:"weighted,omitempty" toml:"weighted,omitempty" yaml:"weighted,omitempty" label:"-"`
-	Mirroring    *Mirroring           `json:"mirroring,omitempty" toml:"mirroring,omitempty" yaml:"mirroring,omitempty" label:"-"`
+	LoadBalancer *ServersLoadBalancer `json:"loadBalancer,omitempty" label:"-" toml:"loadBalancer,omitempty" yaml:"loadBalancer,omitempty"`
+	Weighted     *WeightedRoundRobin  `json:"weighted,omitempty"     label:"-" toml:"weighted,omitempty"     yaml:"weighted,omitempty"`
+	Mirroring    *Mirroring           `json:"mirroring,omitempty"    label:"-" toml:"mirroring,omitempty"    yaml:"mirroring,omitempty"`
 
 	// Err contains all the errors that occurred during service creation.
 	Err []string `json:"error,omitempty"`
 	// Status reports whether the service is disabled, in a warning state, or all good (enabled).
 	// If not in "enabled" state, the reason for it should be in the list of Err.
 	// It is the caller's responsibility to set the initial status.
-	Status string   `json:"status,omitempty"`
-	UsedBy []string `json:"usedBy,omitempty"` // list of routers using that service
+	Status       string            `json:"status,omitempty"`
+	UsedBy       []string          `json:"usedBy,omitempty"` // list of routers using that service
+	ServerStatus map[string]string `json:"serverStatus,omitempty"`
 }
 
 // ServersLoadBalancer holds the ServersLoadBalancer configuration.
 type ServersLoadBalancer struct {
-	Servers     []Server     `json:"servers,omitempty" toml:"servers,omitempty" yaml:"servers,omitempty" label-slice-as-struct:"server"`
-	HealthCheck *HealthCheck `json:"healthCheck,omitempty" toml:"healthCheck,omitempty" yaml:"healthCheck,omitempty"`
+	Servers     []Server     `json:"servers,omitempty"`
+	HealthCheck *HealthCheck `json:"healthCheck,omitempty"`
 }
 
 // HealthCheck holds the HealthCheck configuration.
 type HealthCheck struct {
-	Scheme   string            `json:"scheme,omitempty" toml:"scheme,omitempty" yaml:"scheme,omitempty"`
-	Path     string            `json:"path,omitempty" toml:"path,omitempty" yaml:"path,omitempty"`
-	Port     int               `json:"port,omitempty" toml:"port,omitempty,omitzero" yaml:"port,omitempty"`
-	Interval string            `json:"interval,omitempty" toml:"interval,omitempty" yaml:"interval,omitempty"`
-	Timeout  string            `json:"timeout,omitempty" toml:"timeout,omitempty" yaml:"timeout,omitempty"`
-	Hostname string            `json:"hostname,omitempty" toml:"hostname,omitempty" yaml:"hostname,omitempty"`
-	Headers  map[string]string `json:"headers,omitempty" toml:"headers,omitempty" yaml:"headers,omitempty"`
+	Scheme   string            `json:"scheme,omitempty"   toml:"scheme,omitempty"        yaml:"scheme,omitempty"`
+	Path     string            `json:"path,omitempty"     toml:"path,omitempty"          yaml:"path,omitempty"`
+	Port     int               `json:"port,omitempty"     toml:"port,omitempty,omitzero" yaml:"port,omitempty"`
+	Interval string            `json:"interval,omitempty" toml:"interval,omitempty"      yaml:"interval,omitempty"`
+	Timeout  string            `json:"timeout,omitempty"  toml:"timeout,omitempty"       yaml:"timeout,omitempty"`
+	Hostname string            `json:"hostname,omitempty" toml:"hostname,omitempty"      yaml:"hostname,omitempty"`
+	Headers  map[string]string `json:"headers,omitempty"  toml:"headers,omitempty"       yaml:"headers,omitempty"`
 }
 
 // Sticky holds the sticky configuration.
@@ -285,20 +345,20 @@ type Sticky struct {
 
 // Cookie holds the sticky configuration based on cookie.
 type Cookie struct {
-	Name     string `json:"name,omitempty" toml:"name,omitempty" yaml:"name,omitempty"`
-	Secure   bool   `json:"secure,omitempty" toml:"secure,omitempty" yaml:"secure,omitempty"`
+	Name     string `json:"name,omitempty"     toml:"name,omitempty"     yaml:"name,omitempty"`
+	Secure   bool   `json:"secure,omitempty"   toml:"secure,omitempty"   yaml:"secure,omitempty"`
 	HTTPOnly bool   `json:"httpOnly,omitempty" toml:"httpOnly,omitempty" yaml:"httpOnly,omitempty"`
 }
 
 // WeightedRoundRobin is a weighted round robin load-balancer of services.
 type WeightedRoundRobin struct {
 	Services []WRRService `json:"services,omitempty" toml:"services,omitempty" yaml:"services,omitempty"`
-	Sticky   *Sticky      `json:"sticky,omitempty" toml:"sticky,omitempty" yaml:"sticky,omitempty"`
+	Sticky   *Sticky      `json:"sticky,omitempty"   toml:"sticky,omitempty"   yaml:"sticky,omitempty"`
 }
 
 // WRRService is a reference to a service load-balanced with weighted round robin.
 type WRRService struct {
-	Name   string `json:"name,omitempty" toml:"name,omitempty" yaml:"name,omitempty"`
+	Name   string `json:"name,omitempty"   toml:"name,omitempty"   yaml:"name,omitempty"`
 	Weight *int   `json:"weight,omitempty" toml:"weight,omitempty" yaml:"weight,omitempty"`
 }
 
@@ -312,6 +372,6 @@ type Mirroring struct {
 
 // MirrorService holds the MirrorService configuration.
 type MirrorService struct {
-	Name    string `json:"name,omitempty" toml:"name,omitempty" yaml:"name,omitempty"`
+	Name    string `json:"name,omitempty"    toml:"name,omitempty"    yaml:"name,omitempty"`
 	Percent int    `json:"percent,omitempty" toml:"percent,omitempty" yaml:"percent,omitempty"`
 }
