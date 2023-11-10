@@ -8,7 +8,7 @@ on:
 
 jobs:
   call-docker-build:
-    uses: reportportal/.github/workflows/build-feature-image.yaml@feature/reusing-workflows
+    uses: reportportal/.github/.github/workflows/build-feature-image.yaml@feature/reusing-workflows
     with:
       environment: development
       aws-region: ${{ vars.AWS_REGION }}
