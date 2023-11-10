@@ -11,7 +11,7 @@ jobs:
     uses: reportportal/.github/workflows/build-feature-image.yaml@feature/reusing-workflows
     with:
       environment: development
-      AWS_REGION: ${{ vars.AWS_REGIflowON }}
-      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
-      BUILD_PLATFORMS: ${{ vars.BUILD_PLATFORMS }}
+      aws-region: ${{ vars.AWS_REGION }}
+      ecr-repository: ${{ vars.ECR_REPOSITORY }}
+      build-platforms: ${{ vars.BUILD_PLATFORMS }}
     secrets: inherit
