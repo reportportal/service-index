@@ -12,6 +12,4 @@ jobs:
     with:
       environment: development
       aws-region: ${{ vars.AWS_REGION }}
-      ecr-repository: ${{ vars.ECR_REPOSITORY }}
-      build-platforms: ${{ vars.BUILD_PLATFORMS }}
     secrets: inherit
