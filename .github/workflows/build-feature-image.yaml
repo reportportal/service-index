@@ -7,8 +7,32 @@ on:
     #   - 'develop'
 
 jobs:
+  variables-setup:
+    name: Variables setup for docker build
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.vars.outputs.tag }}
+      date: ${{ steps.vars.outputs.date }}
+      sha_short: ${{ steps.vars.outputs.sha_short }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Create variables
+        id: vars
+        run: |
+          echo "tag=$(echo ${{ github.head_ref }}-${{ github.run_number }} | tr '/' '-')" >> $GITHUB_OUTPUT
+          echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
   call-docker-build:
+    name: Call feature Docker build
+    needs: variables-setup
     uses: reportportal/.github/.github/workflows/build-feature-image.yaml@feature/reusing-workflows
     with:
       aws-region: ${{ vars.AWS_REGION }}
+      image-tag: ${{ needs.variables-setup.outputs.tag }}
+      version: '${{ github.head_ref }}-${{ needs.variables-setup.outputs.sha_short }}'
+      branch: ${{ github.head_ref }}
+      date: ${{ needs.variables-setup.outputs.date}}
     secrets: inherit
