@@ -3,8 +3,8 @@ name: Build feature Docker image
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    # branches:
-    #   - 'develop'
+    branches:
+      - 'develop'
 
 jobs:
   variables-setup:
@@ -31,9 +31,7 @@ jobs:
     needs: variables-setup
     uses: reportportal/.github/.github/workflows/build-docker-image.yaml@main
     with:
-      aws-region: ${{ vars.AWS_REGION }}
       image-tag: ${{ needs.variables-setup.outputs.tag }}
-      additional-tag: 'test-latest'
       version: '${{ github.head_ref }}-${{ needs.variables-setup.outputs.sha_short }}'
       branch: ${{ github.head_ref }}
       date: ${{ needs.variables-setup.outputs.date}}
