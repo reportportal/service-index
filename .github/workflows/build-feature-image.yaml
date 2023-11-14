@@ -3,8 +3,8 @@ name: Build feature Docker image
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    branches:
-      - 'develop'
+    # branches:
+    #   - 'develop'
 
 jobs:
   variables-setup:
