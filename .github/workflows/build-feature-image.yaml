@@ -3,13 +3,15 @@ name: Build feature Docker image
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    # branches:
-    #   - 'develop'
+    branches:
+      - 'develop'
 
 jobs:
   variables-setup:
     name: Setting variables for docker build
     runs-on: ubuntu-latest
+    # if: contains('rc/ hotfix/ master main', github.head_ref) == false
+    if: startsWith(github.head_ref, 'raikbitters-' || 'rc/' || 'hotfix/' || 'master' || 'main') == false
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -28,7 +30,7 @@ jobs:
   call-docker-build:
     name: Call feature Docker build
     needs: variables-setup
-    uses: reportportal/.github/.github/workflows/build-feature-image.yaml@feature/reusing-workflows
+    uses: reportportal/.github/.github/workflows/build-docker-image.yaml
     with:
       aws-region: ${{ vars.AWS_REGION }}
       image-tag: ${{ needs.variables-setup.outputs.tag }}
