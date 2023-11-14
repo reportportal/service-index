@@ -33,6 +33,7 @@ jobs:
     needs: variables-setup
     uses: reportportal/.github/.github/workflows/build-docker-image.yaml@main
     with:
+      aws-region: ${{ vars.AWS_REGION }}
       image-tag: ${{ needs.variables-setup.outputs.tag }}
       additional-tag: 'fake-latest'
       build-platforms: ${{ needs.variables-setup.outputs.platforms }}
