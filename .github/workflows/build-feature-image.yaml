@@ -11,7 +11,7 @@ jobs:
     name: Setting variables for docker build
     runs-on: ubuntu-latest
     # if: contains('rc/ hotfix/ master main', github.head_ref) == false
-    if: startsWith(github.head_ref, 'raikbitters-' || 'rc/' || 'hotfix/' || 'master' || 'main') == false
+    if: startsWith(github.head_ref, 'rc/' || 'hotfix/' || 'master' || 'main' || 'raikbitters-') == false
     steps:
       - name: Checkout
         uses: actions/checkout@v3
