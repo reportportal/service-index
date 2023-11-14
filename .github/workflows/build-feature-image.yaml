@@ -35,5 +35,5 @@ jobs:
       image-tag: ${{ needs.variables-setup.outputs.tag }}
       version: '${{ github.head_ref }}-${{ needs.variables-setup.outputs.sha_short }}'
       branch: ${{ github.head_ref }}
-      date: ${{ needs.variables-setup.outputs.date}}
+      date: ${{ needs.variables-setup.outputs.date }}
     secrets: inherit
