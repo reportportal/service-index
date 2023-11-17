@@ -2,7 +2,6 @@ package k8s
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -103,7 +102,7 @@ func (a *Aggregator) AggregateInfo() map[string]interface{} {
 		if nil == rs {
 			log.Error("Unable to collect info endpoint response")
 
-			return nil, errors.New("response is empty")
+			return nil, fmt.Errorf("response is empty")
 		}
 
 		return rs, nil

@@ -1,7 +1,6 @@
 package traefik
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -21,9 +20,9 @@ const (
 )
 
 var (
-	errEmptyResponse = errors.New("response is empty")
-	errGetHealth     = errors.New("unable to update health info")
-	errPathParsing   = errors.New("unable to parse path")
+	errEmptyResponse = fmt.Errorf("response is empty")
+	errGetHealth     = fmt.Errorf("unable to update health info")
+	errPathParsing   = fmt.Errorf("unable to parse path")
 )
 
 // Providers represents traefik response model
