@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -11,7 +12,6 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -48,7 +48,7 @@ type NodeInfo struct {
 func NewAggregator(timeout time.Duration) (*Aggregator, error) {
 	ns, err := getCurrentNamespace()
 	if err != nil {
-		return nil, errors.Wrapf(err, "Unable to find out current namespace: %v", err)
+		return nil, fmt.Errorf("unable to find out current namespace: %w", err)
 	}
 
 	log.Infof("Namespace: %s", ns)
