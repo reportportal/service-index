@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -26,6 +27,8 @@ const (
 	nsSecret      = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 	labelSelector = "app=reportportal"
 )
+
+var errEmptyResponse = errors.New("response is empty")
 
 // Aggregator is an info/health aggregator implementation for k8s
 type Aggregator struct {
@@ -102,7 +105,7 @@ func (a *Aggregator) AggregateInfo() map[string]interface{} {
 		if nil == rs {
 			log.Error("Unable to collect info endpoint response")
 
-			return nil, fmt.Errorf("response is empty")
+			return nil, errEmptyResponse
 		}
 
 		return rs, nil
