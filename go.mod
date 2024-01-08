@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/go-chi/chi/v5 v5.0.10
-	github.com/go-resty/resty/v2 v2.10.0
+	github.com/go-resty/resty/v2 v2.11.0
 	github.com/reportportal/commons-go/v5 v5.0.11
 	github.com/sirupsen/logrus v1.9.3
 	k8s.io/apimachinery v0.28.3
