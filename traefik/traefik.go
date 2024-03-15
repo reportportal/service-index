@@ -87,7 +87,7 @@ func (ni *NodeInfo) GetHealthEndpoint() string {
 }
 
 // NewAggregator creates new traefik aggregator
-func NewAggregator(traefikURL string, traefikV2 bool, containerBased bool, usePathPrefix bool, timeout time.Duration) *Aggregator {
+func NewAggregator(traefikURL string, traefikV2, containerBased, usePathPrefix bool, timeout time.Duration) *Aggregator {
 	return &Aggregator{
 		r: resty.NewWithClient(&http.Client{
 			Timeout: timeout,
