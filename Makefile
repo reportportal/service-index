@@ -40,8 +40,9 @@ lint: checkstyle
 
 fmt:
 	gofmt -l -w -s ${GOFILES_NOVENDOR}
-	goimports -local "github.com/reportportal/service-index" -l -w ${GOFILES_NOVENDOR}
 	gofumpt -l -w ${GOFILES_NOVENDOR}
+	goimports -local github.com/reportportal/service-index -w ${GOFILES_NOVENDOR}
+	gci write --skip-generated --section Standard --section Default --section "Prefix(github.com/reportportal/service-index)" ${GOFILES_NOVENDOR}
 
 # Builds server
 build:

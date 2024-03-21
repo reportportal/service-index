@@ -3,7 +3,6 @@ package traefik
 import (
 	"errors"
 	"fmt"
-	"github.com/vulcand/predicate"
 	"net/http"
 	"net/url"
 	"strings"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"github.com/vulcand/predicate"
 )
 
 const (
@@ -284,13 +284,18 @@ func getPath(s string) (string, error) {
 		},
 	})
 	if err != nil {
-		return "", err
+		return "", errPathParsing
 	}
 	pr, err := p.Parse(s)
 	if err != nil {
-		return "", err
+		return "", errPathParsing
 	}
-	return pr.(string), nil
+	prefix, ok := pr.(string)
+	if !ok {
+		return "", errPathParsing
+	}
+
+	return prefix, nil
 }
 
 type RawData struct {

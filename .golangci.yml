@@ -11,15 +11,9 @@ linters-settings:
         deny:
           - pkg: io/ioutil
             desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1.16#ioutil"
-  govet:
-    check-shadowing: true
-  golint:
-    min-confidence: 0.8
   gocyclo:
     min-complexity: 10
     max-complexity: 12
-  maligned:
-    suggest-new: true
   dupl:
     threshold: 500
   goconst:
@@ -30,6 +24,8 @@ linters-settings:
   lll:
     line-length: 140
   goimports:
+    local-prefixes: github.com/reportportal/service-index
+  gci:
     local-prefixes: github.com/reportportal/service-index
   gocritic:
     enabled-tags:
@@ -46,26 +42,20 @@ linters-settings:
       - docStub
 
 linters:
-  enable-all: true
-  disable:
-    - prealloc
-    - gochecknoglobals
-    - gocyclo
-    - gocritic
-    - interfacer
-    - wsl
-    - funlen
+  presets:
+    - bugs
+    - comment
+    - complexity
+    - error
+    - format
+    - import
+    - metalinter
+    - performance
     - unused
-    - gomnd
+  disable:
     - godot
-    - exhaustivestruct
-    - exhaustruct
-    - varnamelen
-    - gci
-    - nosnakecase
-    - ifshort
-    - scopelint
-    - depguard
+    - gocritic
+    - funlen
 run:
   # default concurrency is a available CPU number
   concurrency: 1

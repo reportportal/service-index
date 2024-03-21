@@ -35,6 +35,7 @@ func Test_getPath(t *testing.T) {
 			got, err := getPath(tt.args.s)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getPath() error = %v, wantErr %v", err, tt.wantErr)
+
 				return
 			}
 			if got != tt.want {
