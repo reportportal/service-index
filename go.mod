@@ -7,6 +7,7 @@ require (
 	github.com/go-resty/resty/v2 v2.12.0
 	github.com/reportportal/commons-go/v5 v5.0.12
 	github.com/sirupsen/logrus v1.9.3
+	github.com/vulcand/predicate v1.2.0
 	k8s.io/apimachinery v0.29.3
 	k8s.io/client-go v0.29.3
 )
@@ -28,6 +29,7 @@ require (
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.3.1 // indirect
+	github.com/gravitational/trace v1.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect

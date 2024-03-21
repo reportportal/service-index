@@ -3,6 +3,7 @@ package traefik
 import (
 	"errors"
 	"fmt"
+	"github.com/vulcand/predicate"
 	"net/http"
 	"net/url"
 	"strings"
@@ -248,7 +249,7 @@ func (a *Aggregator) getNodesInfoWithPath() (map[string]*NodeInfo, error) {
 
 	for sName, s := range rawData.Services {
 		if s.LoadBalancer != nil {
-			backName := strings.Split(sName, "@")[0]
+			backName := sName[:strings.LastIndex(sName, "@")]
 			sURL := s.LoadBalancer.Servers[0].URL
 			path, err := getPath(rawData.Routers[sName].Rule)
 			if nil != err {
@@ -269,20 +270,27 @@ func getFirstNode(m map[string]*Server) *Server {
 	return nil
 }
 
+// getPath parses path from Traefik configuration rule
+// uses the same library as Traefik does
 func getPath(s string) (string, error) {
-	if strings.HasPrefix(s, "PathPrefix(`") {
-		path := strings.TrimPrefix(s, "PathPrefix(`")
-		path = strings.TrimSuffix(path, "`)")
-
-		return path, nil
-	} else if strings.HasPrefix(s, "Path(`") {
-		path := strings.TrimPrefix(s, "Path(`")
-		path = strings.TrimSuffix(path, "`)")
-
-		return path, nil
+	prefixFunc := func(str string) string {
+		return str
 	}
-
-	return "", errPathParsing
+	// Create a new parser and define the supported operators and methods
+	p, err := predicate.NewParser(predicate.Def{
+		Functions: map[string]interface{}{
+			"PathPrefix": prefixFunc,
+			"Path":       prefixFunc,
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	pr, err := p.Parse(s)
+	if err != nil {
+		return "", err
+	}
+	return pr.(string), nil
 }
 
 type RawData struct {
