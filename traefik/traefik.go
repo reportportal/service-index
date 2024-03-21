@@ -280,9 +280,9 @@ func getPath(s string) (string, error) {
 		path = strings.TrimSuffix(path, "`)")
 
 		return path, nil
-	} else {
-		return "", errPathParsing
 	}
+
+	return "", errPathParsing
 }
 
 type RawData struct {
