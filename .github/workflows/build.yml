@@ -41,13 +41,13 @@ jobs:
         id: setup
         uses: actions/setup-go@v5
         with:
-          go-version: '1.19.9'
+          go-version: '1.22.1'
 
       - name: Go Linter
         id: linter
         uses: golangci/golangci-lint-action@v4
         with:
-          version: v1.48.0
+          version: v1.56.0
           args: '--deadline 10m'
 
       - name: Go Tests
