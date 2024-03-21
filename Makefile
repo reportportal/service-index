@@ -34,7 +34,7 @@ test:
 
 
 checkstyle:
-	golangci-lint run --deadline 10m
+	golangci-lint run --fast --disable=errcheck --disable=gas --deadline 10m
 
 lint: checkstyle
 

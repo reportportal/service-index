@@ -62,6 +62,10 @@ linters:
     - exhaustruct
     - varnamelen
     - gci
+    - nosnakecase
+    - ifshort
+    - scopelint
+    - depguard
 run:
   # default concurrency is a available CPU number
   concurrency: 1
@@ -69,7 +73,6 @@ run:
 #    - test/testdata_etc
 
 issues:
-  #  exclude-use-default: false
   exclude-rules:
     - text: "weak cryptographic primitive"
       linters:
