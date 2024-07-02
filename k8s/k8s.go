@@ -101,7 +101,7 @@ func (a *Aggregator) AggregateInfo() map[string]interface{} {
 			return nil, fmt.Errorf("unable to aggregate info: %w", e)
 		}
 		if nil == rs {
-			log.Error("Unable to collect info endpoint response")
+			log.Errorf("Unable to collect info endpoint response from service %s:%s, endpoint %s", ni.srv, ni.portName, ni.infoEndpoint)
 
 			return nil, errEmptyResponse
 		}
