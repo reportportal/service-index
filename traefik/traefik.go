@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
+	"github.com/vulcand/predicate"
 )
 
 const (
@@ -87,7 +88,7 @@ func (ni *NodeInfo) GetHealthEndpoint() string {
 }
 
 // NewAggregator creates new traefik aggregator
-func NewAggregator(traefikURL string, traefikV2 bool, containerBased bool, usePathPrefix bool, timeout time.Duration) *Aggregator {
+func NewAggregator(traefikURL string, traefikV2, containerBased, usePathPrefix bool, timeout time.Duration) *Aggregator {
 	return &Aggregator{
 		r: resty.NewWithClient(&http.Client{
 			Timeout: timeout,
@@ -248,7 +249,7 @@ func (a *Aggregator) getNodesInfoWithPath() (map[string]*NodeInfo, error) {
 
 	for sName, s := range rawData.Services {
 		if s.LoadBalancer != nil {
-			backName := strings.Split(sName, "@")[0]
+			backName := sName[:strings.LastIndex(sName, "@")]
 			sURL := s.LoadBalancer.Servers[0].URL
 			path, err := getPath(rawData.Routers[sName].Rule)
 			if nil != err {
@@ -269,20 +270,32 @@ func getFirstNode(m map[string]*Server) *Server {
 	return nil
 }
 
+// getPath parses path from Traefik configuration rule
+// uses the same library as Traefik does
 func getPath(s string) (string, error) {
-	if strings.HasPrefix(s, "PathPrefix(`") {
-		path := strings.TrimPrefix(s, "PathPrefix(`")
-		path = strings.TrimSuffix(path, "`)")
-
-		return path, nil
-	} else if strings.HasPrefix(s, "Path(`") {
-		path := strings.TrimPrefix(s, "Path(`")
-		path = strings.TrimSuffix(path, "`)")
-
-		return path, nil
-	} else {
+	prefixFunc := func(str string) string {
+		return str
+	}
+	// Create a new parser and define the supported operators and methods
+	p, err := predicate.NewParser(predicate.Def{
+		Functions: map[string]interface{}{
+			"PathPrefix": prefixFunc,
+			"Path":       prefixFunc,
+		},
+	})
+	if err != nil {
 		return "", errPathParsing
 	}
+	pr, err := p.Parse(s)
+	if err != nil {
+		return "", errPathParsing
+	}
+	prefix, ok := pr.(string)
+	if !ok {
+		return "", errPathParsing
+	}
+
+	return prefix, nil
 }
 
 type RawData struct {
