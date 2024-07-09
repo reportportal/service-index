@@ -1,14 +1,14 @@
 package main
 
 import (
+	"fmt"
+	"github.com/reportportal/service-index/buildinfo"
+	"github.com/reportportal/service-index/server"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/reportportal/commons-go/v5/commons"
-	"github.com/reportportal/commons-go/v5/conf"
-	"github.com/reportportal/commons-go/v5/server"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/reportportal/service-index/aggregator"
@@ -19,10 +19,10 @@ import (
 const httpClientTimeout = 5 * time.Second
 
 func main() {
-	cfg := conf.EmptyConfig()
+	cfg := server.EmptyConfig()
 
 	rpCfg := struct {
-		*conf.ServerConfig
+		*server.Config
 		K8sMode               bool   `env:"K8S_MODE"          envDefault:"false"`
 		TraefikV2Mode         bool   `env:"TRAEFIK_V2_MODE"   envDefault:"false"`
 		TraefikContainerBased bool   `env:"TRAEFIK_CONTAINER" envDefault:"true"`
@@ -31,10 +31,10 @@ func main() {
 		LogLevel              string `env:"LOG_LEVEL"         envDefault:"info"`
 		Path                  string `env:"RESOURCE_PATH"     envDefault:""`
 	}{
-		ServerConfig: cfg,
+		Config: cfg,
 	}
 
-	err := conf.LoadConfig(&rpCfg)
+	err := server.LoadConfig(&rpCfg)
 	if nil != err {
 		log.Fatalf("Cannot load config %v", err)
 	}
@@ -44,10 +44,10 @@ func main() {
 	}
 	log.SetLevel(ll)
 
-	info := commons.GetBuildInfo()
+	info := buildinfo.GetBuildInfo()
 	info.Name = "Index Service"
-
-	srv := server.New(rpCfg.ServerConfig, info)
+	fmt.Printf("%+v", info)
+	srv := server.New(rpCfg.Config, info)
 
 	log.Infof("K8S mode enabled: %t", rpCfg.K8sMode)
 	var aggreg aggregator.Aggregator

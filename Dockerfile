@@ -6,7 +6,7 @@ ARG BUILDPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
 ARG APP_VERSION=develop
-ARG PACKAGE_COMMONS=github.com/reportportal/commons-go/v5
+ARG PACKAGE_COMMONS=github.com/reportportal/service-index
 ARG REPO_NAME=reportportal/service-index
 ARG BUILD_BRANCH
 ARG BUILD_DATE
@@ -18,10 +18,10 @@ RUN echo "I am running on ${BUILDPLATFORM}, building for TargetOS: $TARGETOS and
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
         -ldflags "-extldflags '"-static"' \
-        -X ${PACKAGE_COMMONS}/commons.repo=${REPO_NAME} \
-        -X ${PACKAGE_COMMONS}/commons.branch=${BUILD_BRANCH} \
-        -X ${PACKAGE_COMMONS}/commons.buildDate=${BUILD_DATE} \
-        -X ${PACKAGE_COMMONS}/commons.version=${APP_VERSION}" \
+        -X ${PACKAGE_COMMONS}/buildinfo.repo=${REPO_NAME} \
+        -X ${PACKAGE_COMMONS}/buildinfo.branch=${BUILD_BRANCH} \
+        -X ${PACKAGE_COMMONS}/buildinfo.buildDate=${BUILD_DATE} \
+        -X ${PACKAGE_COMMONS}/buildinfo.version=${APP_VERSION}" \
         -o app ./
 
 FROM --platform=${BUILDPLATFORM} alpine:3.20.0
