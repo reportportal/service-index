@@ -1,0 +1,17 @@
+{
+    "index": {
+        "url": "http://reportportal-index:8080/"
+    },
+    "jobs": {
+        "url": "http://reportportal-jobs:8686/"
+    },
+    "uat": {
+        "url": "http://reportportal-uat:9999/"
+    },
+    "ui": {
+        "url": "http://reportportal-ui:8080/"
+    },
+    "api": {
+        "url": "http://reportportal-api:8585/"
+    }
+}
