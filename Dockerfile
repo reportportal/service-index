@@ -24,7 +24,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
         -X ${PACKAGE_COMMONS}/commons.version=${APP_VERSION}" \
         -o app ./
 
-FROM --platform=${BUILDPLATFORM} alpine:3.20.0
+FROM --platform=${BUILDPLATFORM} alpine:3.20.2
 ENV DEPOLY_DIR=/app/service-index
 RUN mkdir -p ${DEPOLY_DIR}
 WORKDIR ${DEPOLY_DIR}
