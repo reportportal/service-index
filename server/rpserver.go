@@ -1,16 +1,17 @@
 package server
 
 import (
-	"github.com/reportportal/service-index/buildinfo"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/reportportal/service-index/buildinfo"
 )
 
-// RpServer represents ReportPortal micro-service instance
+// RpServer represents ReportPortal microservice instance
 type RpServer struct {
 	mux       *chi.Mux
 	cfg       *Config

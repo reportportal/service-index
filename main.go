@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/reportportal/service-index/buildinfo"
-	"github.com/reportportal/service-index/server"
 	"net/http"
 	"time"
 
@@ -12,7 +10,9 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/reportportal/service-index/aggregator"
+	"github.com/reportportal/service-index/buildinfo"
 	"github.com/reportportal/service-index/k8s"
+	"github.com/reportportal/service-index/server"
 	"github.com/reportportal/service-index/traefik"
 )
 

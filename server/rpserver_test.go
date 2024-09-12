@@ -1,11 +1,12 @@
 package server
 
 import (
-	"github.com/reportportal/service-index/buildinfo"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
+
+	"github.com/reportportal/service-index/buildinfo"
 )
 
 type Person struct {

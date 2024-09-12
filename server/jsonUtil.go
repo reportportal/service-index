@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 )
 
@@ -16,9 +15,6 @@ var (
 	jsonContentTypeValue = []string{"application/json; charset=utf-8"}
 	jsContentTypeValue   = []string{"application/javascript; charset=utf-8"}
 )
-
-// use a single instance of Validate, it caches struct info
-var validate = validator.New()
 
 // WriteJSON serializes body to provided writer
 func WriteJSON(status int, body interface{}, w http.ResponseWriter) error {
@@ -60,13 +56,4 @@ func ReadJSON(rq *http.Request, val interface{}) error {
 		return errors.Wrap(err, "Cannot unmarshal request")
 	}
 	return err
-}
-
-// Validate validates struct
-func Validate(val interface{}) error {
-	err := validate.Struct(val)
-	if nil != err {
-		return errors.Wrap(err, "Struct validation has failed")
-	}
-	return nil
 }
