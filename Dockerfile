@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} golang:1.22.6-alpine AS builder
+FROM golang:1.22.6-alpine AS builder
 
 ENV APP_DIR=/go/src/github.com/org/repo
 
@@ -24,7 +24,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
         -X ${PACKAGE_COMMONS}/commons.version=${APP_VERSION}" \
         -o app ./
 
-FROM --platform=${BUILDPLATFORM} alpine:3.20.2
+FROM alpine:3.20.2
 ENV DEPOLY_DIR=/app/service-index
 RUN mkdir -p ${DEPOLY_DIR}
 WORKDIR ${DEPOLY_DIR}
