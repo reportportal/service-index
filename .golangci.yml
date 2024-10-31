@@ -62,8 +62,3 @@ run:
 #  skip-dirs:
 #    - test/testdata_etc
 
-issues:
-  exclude-rules:
-    - text: "weak cryptographic primitive"
-      linters:
-        - gosec
