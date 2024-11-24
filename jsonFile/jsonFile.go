@@ -1,7 +1,6 @@
 package jsonFile
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -64,25 +63,12 @@ func NewAggregator(configFile string, timeout time.Duration) (*Aggregator, error
 
 // LoadServices URLs from a Json file
 func loadProperties(filename string) (map[string]*NodeInfo, error) {
-	file, err := os.Open(filename)
+	byteValue, err := os.ReadFile(filename)
 	if err != nil {
-		log.Errorf("Failed to open file: %v", err)
-	}
-	defer file.Close()
-
-	var byteValue []byte
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		byteValue = append(byteValue, scanner.Bytes()...)
-	}
-	if err := scanner.Err(); err != nil {
 		log.Errorf("Failed to read file: %v", err)
 	}
-
 	var nodesInfo map[string]*NodeInfo
-	if err := json.Unmarshal(byteValue, &nodesInfo); err != nil {
-		log.Errorf("Failed to unmarshal Json: %v", err)
-	}
+	json.Unmarshal(byteValue, &nodesInfo)
 
 	if len(nodesInfo) == 0 {
 		log.Errorf("Couldn't read any service from Json file")
