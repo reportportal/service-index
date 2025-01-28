@@ -7,9 +7,9 @@ on:
 jobs:
   publish-artifacts:
     uses: reportportal/.github/.github/workflows/go-build-release.yaml@feature/EPMRPP-98957
-
     with:
       release_version: ${{ github.event.release.tag_name }}
-      repository_url: 'https://maven.pkg.github.com/'
-      gradle_command: ./gradlew build
-      branch: feature/EPMRPP-98957
+      repository_url: 'https://repo1.maven.org/maven2/com/epam/reportportal'
+      go_command: go build
+      output_dir: ./build/
+      branch: feature/EPMRPP-98957 
