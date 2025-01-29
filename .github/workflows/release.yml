@@ -9,6 +9,6 @@ jobs:
     uses: reportportal/.github/.github/workflows/go-build-release.yaml@main
     with:
       release_version: ${{ github.event.release.tag_name }}
-      repository_url: 'https://repo1.maven.org/maven2/com/epam/reportportal'
+      go_version: 1.22.6
       branch: master
       service_name: service/index
