@@ -11,3 +11,4 @@ jobs:
       release_version: ${{ github.event.release.tag_name }}
       repository_url: 'https://repo1.maven.org/maven2/com/epam/reportportal'
       branch: feature/EPMRPP-98957
+      service_name: service/index
