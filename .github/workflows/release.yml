@@ -8,7 +8,5 @@ jobs:
   publish-artifacts:
     uses: reportportal/.github/.github/workflows/go-build-release.yaml@main
     with:
-      release_version: ${{ github.event.release.tag_name }}
       go_version: 1.22.6
-      branch: master
       service_name: service/index
