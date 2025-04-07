@@ -25,7 +25,7 @@ help:
 	@echo "checkstyle - gofmt+golint+misspell"
 
 get-build-deps:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(shell go env GOPATH)/bin" v1.46.2
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(shell go env GOPATH)/bin" latest
 	$(GO) install $(BUILD_DEPS)
 
 test:
@@ -34,7 +34,7 @@ test:
 
 
 checkstyle:
-	golangci-lint run --fast --disable=errcheck --disable=gas --deadline 10m
+	golangci-lint run --fast-only --disable errcheck --disable gosec --timeout 10m
 
 lint: checkstyle
 
