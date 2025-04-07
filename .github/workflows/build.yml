@@ -41,15 +41,15 @@ jobs:
         id: setup
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.24'
 
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: 'v1.56'
+          version: 'v2'
           args:
             --timeout=10m
-            --fast
+            --fast-only
 
       - name: Go Tests
         id: tests
