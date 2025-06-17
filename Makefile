@@ -34,7 +34,7 @@ test:
 
 
 checkstyle:
-	./bin/golangci-lint run --fast --disable=errcheck --disable=gas
+	golangci-lint run --fast-only --disable errcheck --disable gosec --timeout 10m
 
 lint: checkstyle
 
@@ -47,7 +47,7 @@ fmt:
 # Builds server
 build:
 	CGO_ENABLED=0 GOOS=linux $(GO) build ${BUILD_INFO_LDFLAGS} -o ${BINARY_DIR}/service-index ./
-	#CGO_ENABLED=0 $(GO) build ${BUILD_INFO_LDFLAGS} -o ${BINARY_DIR}/service-index ./
+#	CGO_ENABLED=0 $(GO) build ${BUILD_INFO_LDFLAGS} -o ${BINARY_DIR}/service-index ./
 
 
 # Builds server

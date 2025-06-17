@@ -1,0 +1,12 @@
+name: Release Workflow
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish-artifacts:
+    uses: reportportal/.github/.github/workflows/go-build-release.yaml@main
+    with:
+      go_version: 1.22.6
+      service_name: service/index
