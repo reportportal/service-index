@@ -3,7 +3,7 @@ module github.com/reportportal/service-index
 go 1.24.2
 
 require (
-	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/reportportal/commons-go/v5 v5.0.12
 	github.com/sirupsen/logrus v1.9.3
