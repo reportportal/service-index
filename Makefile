@@ -29,7 +29,6 @@ get-build-deps:
 	$(GO) install $(BUILD_DEPS)
 
 test:
-	ls -la
 	$(GO) test ${GODIRS_NOVENDOR}
 
 
