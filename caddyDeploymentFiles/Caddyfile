@@ -1,0 +1,28 @@
+(common_web_config) {
+        handle_path / {
+                reverse_proxy index:8080
+        }
+        handle /composite/* {
+                reverse_proxy index:8080
+        }
+        handle /ui {
+                reverse_proxy index:8080
+        }
+        handle_path /ui/* {
+                reverse_proxy ui:8080
+        }
+        handle_path /api/* {
+                reverse_proxy api:8585
+        }
+        handle_path /uat/* {
+                reverse_proxy uat:9999
+        }
+        handle_path /jobs/* {
+                reverse_proxy jobs:8686
+        }
+}
+
+localhost {
+        import common_web_config
+        
+}

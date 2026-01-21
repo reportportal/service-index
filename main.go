@@ -12,6 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/reportportal/service-index/aggregator"
+	"github.com/reportportal/service-index/jsonFile"
 	"github.com/reportportal/service-index/k8s"
 	"github.com/reportportal/service-index/traefik"
 )
@@ -30,6 +31,8 @@ func main() {
 		TraefikLbURL          string `env:"LB_URL"            envDefault:"http://localhost:8081"`
 		LogLevel              string `env:"LOG_LEVEL"         envDefault:"info"`
 		Path                  string `env:"RESOURCE_PATH"     envDefault:""`
+		FileMode              bool   `env:"FILE_MODE"         envDefault:"false"`
+		FilePath              string `env:"FILE_PATH"         envDefault:"services.json"`
 	}{
 		ServerConfig: cfg,
 	}
@@ -50,11 +53,17 @@ func main() {
 	srv := server.New(rpCfg.ServerConfig, info)
 
 	log.Infof("K8S mode enabled: %t", rpCfg.K8sMode)
+	log.Infof("File mode enabled: %t", rpCfg.FileMode)
 	var aggreg aggregator.Aggregator
 	if rpCfg.K8sMode {
 		aggreg, err = k8s.NewAggregator(httpClientTimeout)
 		if nil != err {
 			log.Fatalf("Incorrect K8S config %s", err.Error())
+		}
+	} else if rpCfg.FileMode {
+		aggreg, err = jsonFile.NewAggregator(rpCfg.FilePath, httpClientTimeout)
+		if nil != err {
+			log.Fatalf("Incorrect Json file config %s", err.Error())
 		}
 	} else {
 		aggreg = traefik.NewAggregator(
