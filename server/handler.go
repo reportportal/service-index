@@ -77,7 +77,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		var httpErr HTTPError
 		switch {
-		case errors.As(errors.Cause(err), &httpErr):
+		case errors.As(err, &httpErr):
 			// We can retrieve the status here and write out a specific
 			// HTTP status code.
 			log.Printf("HTTP %d - %s\n", httpErr.Status(), httpErr)
@@ -87,8 +87,9 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		default:
 			// Any error types we don't specifically look out for default
 			// to serving a HTTP 500
-			http.Error(w, http.StatusText(http.StatusInternalServerError),
-				http.StatusInternalServerError)
+			if err := WriteJSON(http.StatusInternalServerError, map[string]string{"error": http.StatusText(http.StatusInternalServerError)}, w); err != nil {
+				log.Error(err)
+			}
 		}
 	}
 }
