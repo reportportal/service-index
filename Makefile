@@ -33,7 +33,7 @@ test:
 
 
 checkstyle:
-	golangci-lint run --fast-only --disable errcheck --disable gosec --timeout 10m
+	golangci-lint run --fast-only --disable errcheck --timeout 10m
 
 lint: checkstyle
 
@@ -59,7 +59,7 @@ build-release: test checkstyle
 
 # Builds the container
 build-image:
-	docker build --build-arg version=$(v) -t "$(IMAGE_NAME)" -f Dockerfile-develop .
+	docker build --build-arg version=$(v) -t "$(IMAGE_NAME)" -f Dockerfile .
 
 release: get-build-deps build-release
 	releaser release --bintray.token ${BINTRAY_TOKEN}

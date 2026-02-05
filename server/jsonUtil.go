@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-
-	"github.com/pkg/errors"
 )
 
 const contentTypeHeader string = "Content-Type"
@@ -48,12 +46,12 @@ func ReadJSON(rq *http.Request, val interface{}) error {
 
 	rqBody, err := io.ReadAll(rq.Body)
 	if err != nil {
-		return errors.Wrap(err, "Cannot read request body")
+		return fmt.Errorf("cannot read request body: %w", err)
 	}
 
 	err = json.Unmarshal(rqBody, val)
 	if err != nil {
-		return errors.Wrap(err, "Cannot unmarshal request")
+		return fmt.Errorf("cannot unmarshal request: %w", err)
 	}
 	return err
 }
