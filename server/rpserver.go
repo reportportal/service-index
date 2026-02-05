@@ -91,7 +91,7 @@ func (srv *RpServer) healthHandler(w http.ResponseWriter, rq *http.Request) {
 	if len(errs) > 0 {
 		rs["status"] = "DOWN"
 		rs["errors"] = errs
-		status = http.StatusBadRequest
+		status = http.StatusServiceUnavailable
 	} else {
 		rs["status"] = "UP"
 	}
