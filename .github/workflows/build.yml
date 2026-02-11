@@ -16,14 +16,14 @@ on:
 
 env:
   GODIRS_NOVENDOR: '`go list ./... | grep -v /vendor/`'
-  PACKAGE_COMMONS: 'github.com/reportportal/commons-go/v5'
+  PACKAGE_COMMONS: 'github.com/reportportal/service-index'
   BINARY_DIR: 'bin'
   BUILD_INFO_LDFLAGS: >-
     -ldflags "-extldflags '"-static"'
-    -X ${PACKAGE_COMMONS}/commons.repo=${GITHUB_REPOSITORY}
-    -X ${PACKAGE_COMMONS}/commons.branch=${GITHUB_SHA}
-    -X ${PACKAGE_COMMONS}/commons.buildDate=${BUILD_DATE}
-    -X ${PACKAGE_COMMONS}/commons.version=${VERSION}"
+    -X ${PACKAGE_COMMONS}/buildinfo.repo=${GITHUB_REPOSITORY}
+    -X ${PACKAGE_COMMONS}/buildinfo.branch=${GITHUB_SHA}
+    -X ${PACKAGE_COMMONS}/buildinfo.buildDate=${BUILD_DATE}
+    -X ${PACKAGE_COMMONS}/buildinfo.version=${VERSION}"
 
 jobs:
   build:
