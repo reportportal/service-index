@@ -34,4 +34,5 @@ jobs:
       version: ${{ needs.variables-setup.outputs.tag }}
       branch: ${{ github.head_ref }}
       date: ${{ needs.variables-setup.outputs.date }}
-    secrets: inherit
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}

@@ -40,4 +40,5 @@ jobs:
       version: ${{ needs.variables-setup.outputs.version }}
       date: ${{ needs.variables-setup.outputs.date }}
       scan-image: true
-    secrets: inherit
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
