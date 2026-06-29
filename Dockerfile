@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} golang:1.25.5-alpine AS builder
+FROM --platform=${BUILDPLATFORM} golang:1.26.2-alpine AS builder
 
 ENV APP_DIR=/go/src/github.com/org/repo
 
@@ -6,7 +6,7 @@ ARG BUILDPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
 ARG APP_VERSION=develop
-ARG PACKAGE_COMMONS=github.com/reportportal/service-index
+ARG PACKAGE_COMMONS=github.com/reportportal/commons-go/v5
 ARG REPO_NAME=reportportal/service-index
 ARG BUILD_BRANCH
 ARG BUILD_DATE
@@ -18,18 +18,17 @@ RUN echo "I am running on ${BUILDPLATFORM}, building for TargetOS: $TARGETOS and
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
         -ldflags "-extldflags '"-static"' \
-        -X ${PACKAGE_COMMONS}/buildinfo.repo=${REPO_NAME} \
-        -X ${PACKAGE_COMMONS}/buildinfo.branch=${BUILD_BRANCH} \
-        -X ${PACKAGE_COMMONS}/buildinfo.buildDate=${BUILD_DATE} \
-        -X ${PACKAGE_COMMONS}/buildinfo.version=${APP_VERSION}" \
+        -X ${PACKAGE_COMMONS}/commons.repo=${REPO_NAME} \
+        -X ${PACKAGE_COMMONS}/commons.branch=${BUILD_BRANCH} \
+        -X ${PACKAGE_COMMONS}/commons.buildDate=${BUILD_DATE} \
+        -X ${PACKAGE_COMMONS}/commons.version=${APP_VERSION}" \
         -o app ./
 
-FROM alpine:3.23.3
+FROM dhi.io/alpine-base:3.24
 ENV DEPOLY_DIR=/app/service-index
-RUN mkdir -p ${DEPOLY_DIR}
-WORKDIR ${DEPOLY_DIR}
 
-RUN chgrp -R 0 ${DEPOLY_DIR} && chmod -R g=u ${DEPOLY_DIR}
+USER 0
+RUN mkdir -p ${DEPOLY_DIR} && chgrp -R 0 ${DEPOLY_DIR} && chmod -R g=u ${DEPOLY_DIR}
 
 ENV APP_DIR=/go/src/github.com/org/repo
 ARG APP_VERSION
@@ -37,8 +36,10 @@ ARG APP_VERSION
 LABEL maintainer="Andrei Varabyeu <andrei_varabyeu@epam.com>"
 LABEL version=${APP_VERSION}
 
-RUN apk --no-cache add --upgrade apk-tools
-COPY --from=builder ${APP_DIR}/app .
+COPY --from=builder ${APP_DIR}/app ${DEPOLY_DIR}/
+
+WORKDIR ${DEPOLY_DIR}
+USER 1000
 
 EXPOSE 8080
 ENTRYPOINT ["./app"]
