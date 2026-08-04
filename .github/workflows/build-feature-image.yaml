@@ -23,16 +23,16 @@ jobs:
 
       - name: Create variables
         id: vars
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          DISPATCH_TAG: ${{ github.event.inputs.image-tag }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          if [ -n "${{ github.event.inputs.image-tag }}" ]; then
-            echo "Using provided image tag: ${{ github.event.inputs.image-tag }}"
-            echo "tag=${{ github.event.inputs.image-tag }}" >> $GITHUB_OUTPUT
-          elif [ -n "${{ github.head_ref }}" ]; then
-            echo "tag=$(echo ${{ github.head_ref }}-${{ github.run_number }} | tr '/' '-')" >> $GITHUB_OUTPUT
-          else
-            echo "tag=$(echo ${{ github.ref_name }}-${{ github.run_number }} | tr '/' '-')" >> $GITHUB_OUTPUT
-          fi
-          
+          REF="${HEAD_REF}"
+          if [ -z "$REF" ]; then REF="${DISPATCH_TAG}"; fi
+          if [ -z "$REF" ]; then REF="${REF_NAME}"; fi
+          if [ -z "$REF" ]; then REF="feature"; fi
+          echo "tag=$(echo "${REF}-${GITHUB_RUN_NUMBER}" | tr '/' '-')" >> $GITHUB_OUTPUT
           echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
     outputs:
       tag: ${{ steps.vars.outputs.tag }}
@@ -47,8 +47,7 @@ jobs:
       build-platforms: ${{ vars.BUILD_PLATFORMS || 'linux/amd64,linux/arm64' }}
       image-tag: ${{ needs.variables-setup.outputs.tag }}
       version: ${{ needs.variables-setup.outputs.tag }}
-      branch: ${{ github.head_ref != '' && github.head_ref || github.ref_name }}
+      branch: ${{ github.head_ref || github.ref_name }}
       date: ${{ needs.variables-setup.outputs.date }}
-      runs-on: ubuntu-latest
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
