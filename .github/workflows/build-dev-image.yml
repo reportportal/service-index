@@ -34,5 +34,6 @@ jobs:
       additional-tag: 'develop-latest'
       version: 'develop-${{ github.run_number }}'
       date: ${{ needs.variables-setup.outputs.date }}
+      runs-on: ubuntu-latest
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
