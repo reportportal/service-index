@@ -24,12 +24,11 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
         -X ${PACKAGE_COMMONS}/commons.version=${APP_VERSION}" \
         -o app ./
 
-FROM alpine:3.23.3
+FROM dhi.io/alpine-base:3.24
 ENV DEPOLY_DIR=/app/service-index
-RUN mkdir -p ${DEPOLY_DIR}
-WORKDIR ${DEPOLY_DIR}
 
-RUN chgrp -R 0 ${DEPOLY_DIR} && chmod -R g=u ${DEPOLY_DIR}
+USER 0
+RUN mkdir -p ${DEPOLY_DIR} && chgrp -R 0 ${DEPOLY_DIR} && chmod -R g=u ${DEPOLY_DIR}
 
 ENV APP_DIR=/go/src/github.com/org/repo
 ARG APP_VERSION
@@ -37,8 +36,10 @@ ARG APP_VERSION
 LABEL maintainer="Andrei Varabyeu <andrei_varabyeu@epam.com>"
 LABEL version=${APP_VERSION}
 
-RUN apk --no-cache add --upgrade apk-tools
-COPY --from=builder ${APP_DIR}/app .
+COPY --from=builder ${APP_DIR}/app ${DEPOLY_DIR}/
+
+WORKDIR ${DEPOLY_DIR}
+USER 1000
 
 EXPOSE 8080
 ENTRYPOINT ["./app"]
