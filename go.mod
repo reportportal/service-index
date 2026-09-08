@@ -1,10 +1,10 @@
 module github.com/reportportal/service-index
 
-go 1.25.5
+go 1.26.6
 
 require (
 	github.com/caarlos0/env/v11 v11.3.1
-	github.com/go-chi/chi/v5 v5.2.5
+	github.com/go-chi/chi/v5 v5.3.0
 	github.com/go-resty/resty/v2 v2.17.1
 	github.com/onsi/gomega v1.39.1
 	github.com/pkg/errors v0.9.1
