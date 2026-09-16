@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} golang:1.26.2-alpine AS builder
+FROM --platform=${BUILDPLATFORM} golang:1.26.6-alpine AS builder
 
 ENV APP_DIR=/go/src/github.com/org/repo
 
